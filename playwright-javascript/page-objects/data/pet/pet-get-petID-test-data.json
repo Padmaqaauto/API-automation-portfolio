@@ -1,0 +1,17 @@
+{
+  "getPetById": {
+    "url": "/pet/{petId}",
+    "method": "GET",
+    "version": "v2",
+    "auth": "env:PETSTORE_API_KEY",
+    "headers": {
+      "Accept": "static:application/json",
+      "api_key": "env:PETSTORE_API_KEY"
+    },
+    "pathParams": {
+      "petId": "context:createdPetId|exampleTable:petId"
+    },
+    "queryParams": {},
+    "requestBody": null
+  }
+}
