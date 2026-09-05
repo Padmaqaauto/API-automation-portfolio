@@ -1,0 +1,70 @@
+{
+  "pet": {
+    "basePath": "/pet",
+    "methods": ["POST", "PUT"],
+    "version": "v2"
+  },
+  "petFindByStatus": {
+    "basePath": "/pet/findByStatus",
+    "methods": ["GET"],
+    "version": "v2"
+  },
+  "petFindByTags": {
+    "basePath": "/pet/findByTags",
+    "methods": ["GET"],
+    "version": "v2"
+  },
+  "petById": {
+    "basePath": "/pet/{petId}",
+    "methods": ["GET", "POST", "DELETE"],
+    "version": "v2"
+  },
+  "petUploadImage": {
+    "basePath": "/pet/{petId}/uploadImage",
+    "methods": ["POST"],
+    "version": "v2"
+  },
+  "storeInventory": {
+    "basePath": "/store/inventory",
+    "methods": ["GET"],
+    "version": "v2"
+  },
+  "storeOrder": {
+    "basePath": "/store/order",
+    "methods": ["POST"],
+    "version": "v2"
+  },
+  "storeOrderById": {
+    "basePath": "/store/order/{orderId}",
+    "methods": ["GET", "DELETE"],
+    "version": "v2"
+  },
+  "user": {
+    "basePath": "/user",
+    "methods": ["POST"],
+    "version": "v1"
+  },
+  "userCreateWithList": {
+    "basePath": "/user/createWithList",
+    "methods": ["POST"],
+    "version": "v1"
+  },
+  "userLogin": {
+    "basePath": "/user/login",
+    "methods": ["GET"],
+    "version": "v1"
+  },
+  "userLogout": {
+    "basePath": "/user/logout",
+    "methods": ["GET"],
+    "version": "v1"
+  },
+  "userByUsername": {
+    "basePath": "/user/{username}",
+    "methods": ["GET", "PUT", "DELETE"],
+    "version": "v1",
+    "versionOverride": {
+      "DELETE": "v1-deprecated"
+    }
+  }
+}
