@@ -1,8 +1,8 @@
 import { ApiRequestBuilderUtils} from './api-request-builder-utils.js';;
 import { ApiRequestUtils } from './api-request-utils.js';
 import { ApiResponseUtils } from './api-response-utils.js';
-import endpoints from '../test-data/api/api-endpoints.json' with { type: 'json' };
-import versions from '../test-data/api/api-versions.json' with { type: 'json' };
+import endpoints from '../../test-data/api-versions.json/api-versions.json' with { type: 'json' };
+import versions from '../../test-data/api-versions.json/api-versions.json' with { type: 'json' };
 
 export class ApiUtils {
     constructor() {

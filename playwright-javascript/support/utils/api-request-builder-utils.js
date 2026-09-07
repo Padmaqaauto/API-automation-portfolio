@@ -1,4 +1,4 @@
-import {ENV} from '../support/env/env.js';
+import {ENV} from '../env/env.js';
 import {resolveDynamicData} from './data-utils.js';
 import {redactSecrets} from './common-utils.js';
 

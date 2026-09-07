@@ -1,23 +1,24 @@
 export default {
-    default: {
-        import:[
-            'support/**/*.js',
-            'step-definitions/**/*.js'
-        ],
+  paths: [
+    'features/**/*.feature'
+  ],
 
-        paths: [
-            'features/**/*.feature'
-        ],
+  import: [
+    'support/**/*.js',
+    'step-definitions/**/*.js'
+  ],
 
-        format: [
-            'progress',
-            'html:reports/cucumber-report.html',
-            'json:reports/cucumber-report.json'
-        ], 
-        publishQuiet: true,
+  format: [
+    'progress',
+    'html:reports/cucumber-report.html',
+    'json:reports/cucumber-report.json'
+  ],
 
-        worldParameters: {
-            baseUrl: process.env.API_BASE_URL || 'https://petstore.swagger.io/v2',
-        }
-    }
+  publishQuiet: true,
+
+  worldParameters: {
+    baseUrl:
+      process.env.API_BASE_URL ||
+      'https://petstore.swagger.io/v2'
+  }
 };
