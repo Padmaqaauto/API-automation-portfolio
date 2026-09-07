@@ -1,17 +1,15 @@
 {
-  "getPetById": {
-    "url": "/pet/{petId}",
-    "method": "GET",
-    "version": "v2",
-    "auth": "env:PETSTORE_API_KEY",
-    "headers": {
-      "Accept": "static:application/json",
-      "api_key": "env:PETSTORE_API_KEY"
-    },
-    "pathParams": {
-      "petId": "context:createdPetId|exampleTable:petId"
-    },
-    "queryParams": {},
-    "requestBody": null
-  }
+ "petById": {
+ "url": "/pet/{petId}",
+ "method": "GET",
+ "version": "v2",
+ "headers": {
+ "Accept": "static:application/json"
+ },
+ "pathParams": {
+ "petId": 1
+ },
+ "queryParams": {},
+ "requestBody": null
+ }
 }
