@@ -62,48 +62,95 @@ function normalizeTag(tag) {
     .trim();
 }
 
-async function resolveEndpointKey(world) {
-  if (world.endpointKey) return world.endpointKey;
-
-  const registry = await loadEndpointRegistry();
-
-  // 1. Tag matching (Highest Priority) - e.g. @petById
-  const scenarioTags = (world.pickle?.tags || []).map((t) =>
-    t.name.replace(/^@/, '').toLowerCase()
-  );
-
-  for (const key of Object.keys(registry)) {
-    if (scenarioTags.includes(key.toLowerCase())) {
-      world.endpointKey = key;
-      return key;
-    }
+async function resolveEndpointKey(
+  world,
+  requestPath,
+  requestMethod,
+  requestVersion
+) {
+  if (
+    world.endpointKey &&
+    world.endpoint
+  ) {
+    return world.endpointKey;
   }
 
-  // 2. Direct filename match
-  const filePath = world.pickle?.uri || '';
-  const baseName = filePath.split(/[/\\]/).pop().replace(/\.feature$/i, '');
+  const registry =
+    await loadEndpointRegistry();
 
-  if (registry[baseName]) {
-    world.endpointKey = baseName;
-    return baseName;
-  }
+  const endpoints =
+    registry.endpoints ??
+    registry;
 
-  // 3. Fallback: Exact key match ignoring hyphens/casing
-  const cleanBaseName = baseName.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-  for (const key of Object.keys(registry)) {
-    const cleanKey = key.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-    if (cleanKey === cleanBaseName) {
-      world.endpointKey = key;
-      return key;
+  const normalizedPath =
+    String(requestPath)
+      .trim();
+
+  const normalizedMethod =
+    String(requestMethod)
+      .trim()
+      .toUpperCase();
+
+  const normalizedVersion =
+    String(requestVersion)
+      .trim();
+
+  for (
+    const [
+      endpointKey,
+      endpoint
+    ] of Object.entries(endpoints)
+  ) {
+    const endpointPath =
+      endpoint.path ??
+      endpoint.basePath;
+
+    const endpointMethod =
+      String(
+        endpoint.method
+      )
+        .trim()
+        .toUpperCase();
+
+    const endpointVersion =
+      String(
+        endpoint.version
+      )
+        .trim();
+
+    if (
+      endpointPath === normalizedPath &&
+      endpointMethod === normalizedMethod &&
+      endpointVersion === normalizedVersion
+    ) {
+      world.endpointKey =
+        endpointKey;
+
+      world.endpoint =
+        endpoint;
+
+      console.log(
+        'Endpoint resolved automatically:',
+        {
+          endpointKey,
+          path: endpointPath,
+          method: endpointMethod,
+          version: endpointVersion
+        }
+      );
+
+      return endpointKey;
     }
   }
 
   throw new Error(
-    `Unable to determine endpointKey for scenario. Add a registry tag (e.g., @petById) ` +
-    `to '${baseName}.feature'. Available keys: [${Object.keys(registry).join(', ')}]`
+    'Unable to determine endpointKey.\n' +
+    `Path: ${normalizedPath}\n` +
+    `Method: ${normalizedMethod}\n` +
+    `Version: ${normalizedVersion}\n` +
+    'No matching endpoint was found in api-versions.json.'
   );
 }
-
 async function getEndpoint(
   world
 ) {
@@ -134,16 +181,7 @@ async function getEndpoint(
 
 Before(
   async function ({ pickle }) {
-    /*
-     * FIX:
-     * Cucumber provides the pickle through
-     * the hook argument. Do not use scenario.pickle.
-     */
     this.pickle = pickle;
-
-    await resolveEndpointKey(
-      this
-    );
   }
 );
 
@@ -406,44 +444,118 @@ Given(
     method,
     apiData
   ) {
-    const endpoint =
-      await getEndpoint(
-        this
+    const testDataFile =
+      path.resolve(
+        testDataRoot,
+        'pet',
+        apiData
       );
 
-    // Extract allowed methods array or single string from registry
-    const allowedMethods = Array.isArray(endpoint.methods)
-      ? endpoint.methods.map((m) => String(m).trim().toUpperCase())
-      : [String(endpoint.method || '').trim().toUpperCase()];
+    const allTestData =
+      await loadJson(
+        testDataFile
+      );
+
+    let scenarioData;
+
+    if (
+      Object.keys(
+        allTestData
+      ).length === 1
+    ) {
+      scenarioData =
+        allTestData[
+          Object.keys(
+            allTestData
+          )[0]
+        ];
+    } else if (
+      allTestData.request
+    ) {
+      scenarioData =
+        allTestData;
+    } else {
+      scenarioData =
+        resolveScenarioData(
+          allTestData,
+          apiData
+        );
+    }
+
+    const request =
+      scenarioData?.request ??
+      scenarioData;
+
+    const requestPath =
+      request?.url ??
+      request?.path;
+
+    const requestMethod =
+      request?.method ??
+      method;
+
+    const requestVersion =
+      request?.version ??
+      process.env.API_VERSION;
+
+    if (!requestPath) {
+      throw new Error(
+        `API path/url is missing in test data: ${apiData}`
+      );
+    }
+
+    if (!requestMethod) {
+      throw new Error(
+        `HTTP method is missing in test data: ${apiData}`
+      );
+    }
+
+    if (!requestVersion) {
+      throw new Error(
+        `API version is missing in test data: ${apiData} ` +
+        'and API_VERSION is not configured.'
+      );
+    }
+
+    const endpointKey =
+      await resolveEndpointKey(
+        this,
+        requestPath,
+        requestMethod,
+        requestVersion
+      );
+
+    const endpoint =
+      this.endpoint;
 
     const requestedMethod =
       String(method)
         .trim()
         .toUpperCase();
 
-    if (!allowedMethods.includes(requestedMethod)) {
-      throw new Error(
-        `HTTP method mismatch. Feature requested "${requestedMethod}" ` +
-        `but endpoint registry allows: [${allowedMethods.join(', ')}].`
-      );
-    }
+    const configuredMethod =
+      String(
+        endpoint.method
+      )
+        .trim()
+        .toUpperCase();
 
-    const testData =
-      await loadEndpointTestData(
-        endpoint
-      );
+    assert.equal(
+      requestedMethod,
+      configuredMethod,
+      `HTTP method mismatch. ` +
+      `Feature requested "${requestedMethod}" ` +
+      `but endpoint registry contains "${configuredMethod}".`
+    );
 
-    const scenarioData =
-      resolveScenarioData(
-        testData,
-        apiData
-      );
+    this.endpointKey =
+      endpointKey;
 
     this.endpoint =
       endpoint;
 
     this.testData =
-      testData;
+      allTestData;
 
     this.apiData =
       apiData;
@@ -481,10 +593,20 @@ Given(
       );
 
     this.requestMethod =
-      requestedMethod;
+      configuredMethod;
 
     console.log(
-      `[API Request Prepared] ${this.requestMethod} ${this.requestUrl}`
+      '[API Request Prepared]',
+      {
+        endpointKey:
+          this.endpointKey,
+        method:
+          this.requestMethod,
+        version:
+          endpoint.version,
+        url:
+          this.requestUrl
+      }
     );
   }
 );
