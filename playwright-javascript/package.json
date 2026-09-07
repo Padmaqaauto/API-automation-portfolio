@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "type": "module",
-  "scripts": {},
+  "scripts": {
+     "test": "cucumber-js",
+  "cucumber": "cucumber-js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

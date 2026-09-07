@@ -5,7 +5,7 @@ Feature: Find pet by ID
   So that I can verify the pet details returned by the API.
 
   @API @Pet @GetPetById @Regression @Positive
-  Scenario Outline: Get Pet By ID request positive flow with valid pet ID
+  Scenario: Get Pet By ID request positive flow with valid pet ID
 
     Given the user creates a GET request URL and headers with api data "<apiData>"
     Then the user sends a GET request to API
@@ -17,5 +17,5 @@ Feature: Find pet by ID
     And verify the response pet status should be "<petStatus>"
 
     Examples:
-      | apiData  | status | contentType      | schemaTemplate                | petName | petStatus |
-      | validPet | 200    | application/json | pet-get-petId-api-schema.json | doggie  | available |
+      | apiData                      | status | contentType      | schemaTemplate                | petName | petStatus |
+      | pet-get-petID-test-data.json | 200    | application/json | pet-get-petId-api-schema.json | doggie  | available |

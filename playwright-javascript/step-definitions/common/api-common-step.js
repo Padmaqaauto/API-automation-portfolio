@@ -1,5 +1,3 @@
-// support/utils/api-common.steps.js
-
 import {
   Given,
   Then,
@@ -10,7 +8,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 
-import { resolveDynamicData } from './data-utils.js';
+import { resolveDynamicData } from '../../support/utils/data-utils.js';
 
 
 // =============================================================================
@@ -297,6 +295,7 @@ async function getEndpoint(world) {
 Before(
   async function () {
 
+    this.pickle = scenario.pickle;
     await resolveEndpointKey(
       this
     );
