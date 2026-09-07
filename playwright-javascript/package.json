@@ -4,8 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-     "test": "cucumber-js",
-  "cucumber": "cucumber-js"
+    "test": "cucumber-js --require 'step-definitions/**/*.js'",
+    "cucumber": "cucumber-js"
   },
   "keywords": [],
   "author": "",

@@ -4,9 +4,8 @@ Feature: Find pet by ID
   I want to retrieve a pet by its ID
   So that I can verify the pet details returned by the API.
 
-  @API @Pet @GetPetById @Regression @Positive
+  @API @Pet @petById @GetPetById @Regression @Positive
   Scenario: Get Pet By ID request positive flow with valid pet ID
-
     Given the user creates a GET request URL and headers with api data "<apiData>"
     Then the user sends a GET request to API
     Then verify the response status code should be "<status>"
@@ -15,7 +14,6 @@ Feature: Find pet by ID
     And verify the response pet ID should match the requested pet ID
     And verify the response pet name should be "<petName>"
     And verify the response pet status should be "<petStatus>"
-
     Examples:
       | apiData                      | status | contentType      | schemaTemplate                | petName | petStatus |
       | pet-get-petID-test-data.json | 200    | application/json | pet-get-petId-api-schema.json | doggie  | available |
