@@ -68,20 +68,6 @@ async function resolveEndpointKey(
   requestMethod,
   requestVersion
 ) {
-  if (
-    world.endpointKey &&
-    world.endpoint
-  ) {
-    return world.endpointKey;
-  }
-
-  const registry =
-    await loadEndpointRegistry();
-
-  const endpoints =
-    registry.endpoints ??
-    registry;
-
   const normalizedPath =
     String(requestPath)
       .trim();
@@ -94,6 +80,29 @@ async function resolveEndpointKey(
   const normalizedVersion =
     String(requestVersion)
       .trim();
+
+  if (
+    world.endpointKey &&
+    world.endpoint &&
+    (
+      world.endpoint.path ??
+      world.endpoint.basePath
+    ) === normalizedPath &&
+    String(world.endpoint.method)
+      .trim()
+      .toUpperCase() === normalizedMethod &&
+    String(world.endpoint.version)
+      .trim() === normalizedVersion
+  ) {
+    return world.endpointKey;
+  }
+
+  const registry =
+    await loadEndpointRegistry();
+
+  const endpoints =
+    registry.endpoints ??
+    registry;
 
   for (
     const [
@@ -151,16 +160,12 @@ async function resolveEndpointKey(
     'No matching endpoint was found in api-versions.json.'
   );
 }
-async function getEndpoint(
-  world
-) {
+async function getEndpoint(world) {
   const registry =
     await loadEndpointRegistry();
 
   const endpointKey =
-    await resolveEndpointKey(
-      world
-    );
+    await resolveEndpointKey(world);
 
   const endpoint =
     registry[endpointKey];
@@ -527,6 +532,16 @@ Given(
 
     const endpoint =
       this.endpoint;
+
+    if (!this.apiRequestBuilder) {
+      const registry =
+        await loadEndpointRegistry();
+
+      this.apiRequestBuilder =
+        new ApiRequestBuilderUtils(
+          registry
+        );
+    }
 
     const requestedMethod =
       String(method)
