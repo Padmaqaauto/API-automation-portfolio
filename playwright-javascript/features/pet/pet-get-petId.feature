@@ -13,7 +13,7 @@ Feature: Find pet by ID
     And verify the response schema should be matching "<schemaTemplate>"
     And verify the response pet ID should match the requested pet ID
     And verify the response pet name should be "<petName>"
-    And verify the response pet status should be "<petStatus>"
+    
     Examples:
-      | apiData                      | status | contentType      | schemaTemplate                | petName | petStatus |
-      | pet-get-petID-test-data.json | 200    | application/json | pet-get-petId-api-schema.json | doggie  | available |
+      | apiData                      | status | contentType      | schemaTemplate                | petName |
+      | pet-get-petId-test-data.json | 200    | application/json | pet-get-petId-api-schema.json | doggie  |

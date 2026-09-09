@@ -4,8 +4,9 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "test": "cucumber-js --require 'step-definitions/**/*.js'",
-    "cucumber": "cucumber-js"
+    "test": "cucumber-js --require 'step-definitions/**/*.js' --format html:reports/cucumber-report.html",
+    "cucumber": "cucumber-js",
+    "report": "node generateReport.js"
   },
   "keywords": [],
   "author": "",
@@ -19,6 +20,7 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
-    "@types/node": "^26.4.0"
+    "@types/node": "^26.4.0",
+    "cucumber-html-reporter": "^7.2.0"
   }
 }
