@@ -7,7 +7,7 @@
  "Accept": "static:application/json"
  },
  "pathParams": {
- "petId": 1
+ "petId": 1234
  },
  "queryParams": {},
  "requestBody": null
