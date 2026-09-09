@@ -6,8 +6,9 @@ import {
 } from '@cucumber/cucumber';
 
 import assert from 'node:assert/strict';
-import fs from 'node:fs/promises';
+import fs from 'node:fs';
 import path from 'node:path';
+import Ajv from 'ajv';
 
 import { resolveDynamicData } from '../../support/utils/data-utils.js';
 import { ApiRequestBuilderUtils } from '../../support/utils/api-request-builder-utils.js';
@@ -40,12 +41,8 @@ if (!schemaRoot) {
 }
 
 async function loadJson(filePath) {
-  return JSON.parse(
-    await fs.readFile(
-      filePath,
-      'utf-8'
-    )
-  );
+  const fileContent = await fs.promises.readFile(filePath, 'utf-8');
+  return JSON.parse(fileContent);
 }
 
 async function loadEndpointRegistry() {
@@ -220,34 +217,47 @@ async function loadEndpointTestData(
   );
 }
 
-async function loadEndpointSchema(
-  endpoint
-) {
-  const configuration =
-    typeof endpoint.schema === 'string'
-      ? {
-        source: endpoint.schema
-      }
-      : endpoint.schema;
+function loadEndpointSchema(schemaName, endpointMetadata) {
+  // Target file name passed or inferred
+  const targetFileName = schemaName || endpointMetadata?.schemaFile;
+  console.log('targetFileName', targetFileName);
+  // Search directories under schemas and pages/data
+  const searchDirs = [
+    path.resolve(process.cwd(), 'page-objects', 'data', 'pet'),
+    path.resolve(process.cwd(), 'page-objects', 'data', 'store'),
+    path.resolve(process.cwd(), 'page-objects', 'data', 'user'),
+    path.resolve(process.cwd(), schemaRoot)
+  ];
 
-  if (
-    !configuration?.source
-  ) {
+  let resolvedPath = null;
+
+  // Search across target directories for matching *.schema.json file
+  for (const dir of searchDirs) {
+    if (fs.existsSync(dir)) {
+      const files = fs.readdirSync(dir);
+      const match = files.find((file) => {
+        if (!file.endsWith('schema.json')) return false;
+        if (targetFileName) {
+          return file === targetFileName || file.includes(targetFileName.replace('.json', ''));
+        }
+        return true;
+      });
+
+      if (match) {
+        resolvedPath = path.join(dir, match);
+        break;
+      }
+    }
+  }
+  console.log('resolvedpath', resolvedPath);
+  if (!resolvedPath) {
     throw new Error(
-      'Schema source filename is missing from endpoint metadata.'
+      `Schema file matching "${targetFileName || 'schema.json'}" was not found inside pet, store, or user subfolders.`
     );
   }
 
-  const root =
-    configuration.root ??
-    schemaRoot;
-
-  return loadJson(
-    path.resolve(
-      root,
-      configuration.source
-    )
-  );
+  const fileContent = fs.readFileSync(resolvedPath, 'utf-8');
+  return JSON.parse(fileContent);
 }
 
 function resolveScenarioData(
@@ -470,9 +480,9 @@ Given(
     ) {
       scenarioData =
         allTestData[
-          Object.keys(
-            allTestData
-          )[0]
+        Object.keys(
+          allTestData
+        )[0]
         ];
     } else if (
       allTestData.request
@@ -744,27 +754,26 @@ Then(
   }
 );
 
-Then(
-  'verify the response schema should be matching {string}',
-  async function (
-    schemaReference
-  ) {
-    const schema =
-      await loadEndpointSchema(
-        this.endpoint
-      );
+Then('verify the response schema should be matching {string}', async function (schemaName) {
+  let responseBody = this.responseBody;
 
-    if (!this.apiResponseUtils) {
-      throw new Error(
-        'apiResponseUtils is not available on the Cucumber World.'
-      );
+  // Safely parse responseBody if it is passed as a string or double-stringified JSON
+  while (typeof responseBody === 'string') {
+    try {
+      responseBody = JSON.parse(responseBody);
+    } catch (e) {
+      break;
     }
-
-    this.apiResponseUtils
-      .validateSchema(
-        this.responseBody,
-        schema,
-        schemaReference
-      );
   }
-);
+
+  const schema = loadEndpointSchema(schemaName, this.endpoint);
+
+  const ajv = new Ajv({ allErrors: true, strict: false });
+  const validate = ajv.compile(schema);
+  const valid = validate(responseBody);
+
+  if (!valid) {
+    const errorDetails = JSON.stringify(validate.errors, null, 2);
+    throw new Error(`Response body does not match schema "${schemaName}":\n${errorDetails}`);
+  }
+});
