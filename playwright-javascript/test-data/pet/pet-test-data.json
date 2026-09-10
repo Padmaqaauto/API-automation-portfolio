@@ -1,0 +1,7 @@
+{
+  "valid pet ID": 5,
+  "invalid pet ID": 999999999,
+  "non-existing pet ID": 0,
+  "negative pet ID": -1,
+  "non-numeric pet ID": "abc"
+}
