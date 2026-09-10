@@ -1,7 +1,29 @@
 {
-  "valid pet ID": 5,
-  "invalid pet ID": 999999999,
-  "non-existing pet ID": 0,
-  "negative pet ID": -1,
-  "non-numeric pet ID": "abc"
+  "valid pet ID": {
+    "id": 9223372036854024000,
+    "name": "doggie",
+    "status": "available"
+  },
+  "pending pet ID": {
+    "id": 111,
+    "name": "Sharik",
+    "status": "pending"
+  },
+  "sold pet ID": {
+    "id": 502,
+    "name": "Kitty",
+    "status": "sold"
+  },
+  "invalid pet ID": {
+    "id": 999999999
+  },
+  "non-existing pet ID": {
+    "id": 0
+  },
+  "negative pet ID": {
+    "id": -1
+  },
+  "non-numeric pet ID": {
+    "id": "abc"
+  }
 }
