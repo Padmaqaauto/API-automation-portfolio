@@ -220,7 +220,6 @@ async function loadEndpointTestData(
 function loadEndpointSchema(schemaName, endpointMetadata) {
   // Target file name passed or inferred
   const targetFileName = schemaName || endpointMetadata?.schemaFile;
-  console.log('targetFileName', targetFileName);
   // Search directories under schemas and pages/data
   const searchDirs = [
     path.resolve(process.cwd(), 'page-objects', 'data', 'pet'),
@@ -249,7 +248,6 @@ function loadEndpointSchema(schemaName, endpointMetadata) {
       }
     }
   }
-  console.log('resolvedpath', resolvedPath);
   if (!resolvedPath) {
     throw new Error(
       `Schema file matching "${targetFileName || 'schema.json'}" was not found inside pet, store, or user subfolders.`
