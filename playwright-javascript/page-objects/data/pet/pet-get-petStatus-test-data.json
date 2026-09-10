@@ -1,0 +1,15 @@
+{
+    "petByStatus":{
+        "url":"/pet/findByStatus",
+        "method":"GET",
+        "version":"v2",
+        "headers": {
+            "Accept": "static:application/json"
+        },
+        "pathParams":{},
+        "queryParams":{
+            "status":["valuefromexampletable"]
+        },
+        "requestBody": null
+    }
+}
