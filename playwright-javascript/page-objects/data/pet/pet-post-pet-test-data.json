@@ -1,0 +1,31 @@
+{
+  "petCreate": {
+    "url": "/pet",
+    "method": "POST",
+    "version": "v2",
+    "headers": {
+      "Accept": "static:application/json",
+      "Content-Type": "static:application/json"
+    },
+    "pathParams": {},
+    "queryParams": {},
+    "requestBody": {
+      "id": "{{petId}}",
+      "category": {
+        "id": "{{categoryId}}",
+        "name": "{{categoryName}}"
+      },
+      "name": "{{petName}}",
+      "photoUrls": [
+        "{{photoUrl}}"
+      ],
+      "tags": [
+        {
+          "id": "{{tagId}}",
+          "name": "{{tagName}}"
+        }
+      ],
+      "status": "{{petStatus}}"
+    }
+  }
+}
