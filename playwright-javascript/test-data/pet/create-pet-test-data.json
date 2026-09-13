@@ -1,0 +1,10 @@
+{
+    "validPet" : {
+        "id": "789",
+        "category.id": "3",
+        "category.name": "cats",
+        "name":"Kitty",
+        "photoUrls":"https://example.com/cats.jpg",
+        "status":"available"
+    }
+}
