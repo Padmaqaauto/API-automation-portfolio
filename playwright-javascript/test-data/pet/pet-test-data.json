@@ -1,17 +1,17 @@
 {
   "valid pet ID": {
-    "id": 875648,
-    "name": "doggie",
+    "id": 234508,
+    "name": "TestPet_XML",
     "status": "available"
   },
   "pending pet ID": {
-    "id": 111,
-    "name": "Sharik",
+    "id": 54297730,
+    "name": "doggie",
     "status": "pending"
   },
   "sold pet ID": {
-    "id": 502,
-    "name": "Kitty",
+    "id": 2022000,
+    "name": "Star",
     "status": "sold"
   },
   "invalid pet ID": {

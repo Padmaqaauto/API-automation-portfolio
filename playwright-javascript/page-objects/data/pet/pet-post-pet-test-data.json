@@ -7,8 +7,6 @@
       "Accept": "static:application/json",
       "Content-Type": "static:application/json"
     },
-    "pathParams": {},
-    "queryParams": {},
     "requestBody": {
       "id": "{{petId}}",
       "category": {

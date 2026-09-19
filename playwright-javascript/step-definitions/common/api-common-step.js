@@ -2,6 +2,7 @@ import 'dotenv/config';
 
 import {
     Given,
+    When,
     Then,
     Before
 } from '@cucumber/cucumber';
@@ -18,14 +19,19 @@ import {
 
 import { ApiRequestBuilderUtils } from '../../support/utils/api-request-builder-utils.js';
 
+
 const endpointRegistryFile =
     process.env.API_ENDPOINT_REGISTRY_FILE;
 
 const testDataRoot =
     process.env.API_TEST_DATA_ROOT;
 
+const scenarioDataRoot =
+    process.env.API_SCENARIO_DATA_ROOT;
+
 const schemaRoot =
     process.env.API_SCHEMA_ROOT;
+
 
 if (!endpointRegistryFile) {
     throw new Error(
@@ -36,6 +42,12 @@ if (!endpointRegistryFile) {
 if (!testDataRoot) {
     throw new Error(
         'API_TEST_DATA_ROOT is not configured.'
+    );
+}
+
+if (!scenarioDataRoot) {
+    throw new Error(
+        'API_SCENARIO_DATA_ROOT is not configured.'
     );
 }
 
@@ -51,6 +63,7 @@ if (!schemaRoot) {
    ========================================================= */
 
 function readJsonFile(filePath) {
+
     if (!fs.existsSync(filePath)) {
         throw new Error(
             `Test data file was not found: ${filePath}`
@@ -58,13 +71,16 @@ function readJsonFile(filePath) {
     }
 
     try {
+
         return JSON.parse(
             fs.readFileSync(
                 filePath,
                 'utf-8'
             )
         );
+
     } catch (error) {
+
         throw new Error(
             `Unable to parse JSON file "${filePath}". ` +
             `Reason: ${error.message}`
@@ -74,6 +90,7 @@ function readJsonFile(filePath) {
 
 
 async function loadJson(filePath) {
+
     const fileContent =
         await fs.promises.readFile(
             filePath,
@@ -92,6 +109,7 @@ function getNestedValue(
     object,
     fieldPath
 ) {
+
     const parts =
         fieldPath
             .split('.')
@@ -101,6 +119,7 @@ function getNestedValue(
     let current = object;
 
     for (const part of parts) {
+
         if (
             current === null ||
             current === undefined ||
@@ -109,6 +128,7 @@ function getNestedValue(
                 part
             )
         ) {
+
             throw new Error(
                 `Field "${fieldPath}" was not found in the ` +
                 `test-data keyword.`
@@ -127,6 +147,7 @@ function setNestedValue(
     fieldPath,
     value
 ) {
+
     const parts =
         fieldPath
             .split('.')
@@ -146,6 +167,7 @@ function setNestedValue(
         index < parts.length - 1;
         index++
     ) {
+
         const part = parts[index];
 
         if (
@@ -165,6 +187,7 @@ function setNestedValue(
 
 
 function cloneValue(value) {
+
     if (value === undefined) {
         return undefined;
     }
@@ -180,6 +203,7 @@ function cloneValue(value) {
    ========================================================= */
 
 async function loadEndpointRegistry() {
+
     if (!endpointRegistryFile) {
         throw new Error(
             'API_ENDPOINT_REGISTRY_FILE environment variable is not defined.'
@@ -202,14 +226,17 @@ function findEndpointByScenarioTags(
     registry,
     pickle
 ) {
+
     const tags =
         pickle?.tags || [];
 
     const scenarioTags =
         tags.map(tag => {
+
             if (
                 typeof tag === 'string'
             ) {
+
                 return tag.replace(
                     /^@/,
                     ''
@@ -230,6 +257,7 @@ function findEndpointByScenarioTags(
             endpoint
         ] of Object.entries(registry)
     ) {
+
         if (!endpoint) {
             continue;
         }
@@ -248,6 +276,7 @@ function findEndpointByScenarioTags(
                     )
             )
         ) {
+
             return {
                 key: endpointKey,
                 endpoint
@@ -260,6 +289,7 @@ function findEndpointByScenarioTags(
 
 
 function normalizeTag(tag) {
+
     return String(tag)
         .replace(/^@/, '')
         .trim();
@@ -272,31 +302,12 @@ function normalizeTag(tag) {
  * 1. Scenario tags
  * 2. Existing world.endpointKey
  */
+
 async function resolveEndpoint(world) {
 
-    /*
-     * IMPORTANT:
-     * loadEndpointRegistry() is async,
-     * therefore await is required here.
-     */
     const registry =
         await loadEndpointRegistry();
 
-    /*
-     * Support both:
-     *
-     * {
-     *   "petPost": {}
-     * }
-     *
-     * and:
-     *
-     * {
-     *   "endpoints": {
-     *      "petPost": {}
-     *   }
-     * }
-     */
     const endpoints =
         registry.endpoints ??
         registry;
@@ -307,20 +318,19 @@ async function resolveEndpoint(world) {
             world.pickle
         );
 
-    /*
-     * Fallback to endpoint already stored
-     * in the World object.
-     */
     if (
         !endpointResult &&
         world.endpointKey &&
         endpoints[world.endpointKey]
     ) {
+
         endpointResult = {
-            key: world.endpointKey,
+            key:
+                world.endpointKey,
+
             endpoint:
                 endpoints[
-                    world.endpointKey
+                world.endpointKey
                 ]
         };
     }
@@ -381,6 +391,7 @@ async function resolveEndpoint(world) {
 function findJsonFiles(
     directory
 ) {
+
     if (
         !fs.existsSync(directory)
     ) {
@@ -398,6 +409,7 @@ function findJsonFiles(
             }
         )
     ) {
+
         const fullPath =
             path.join(
                 directory,
@@ -407,17 +419,20 @@ function findJsonFiles(
         if (
             entry.isDirectory()
         ) {
+
             result.push(
                 ...findJsonFiles(
                     fullPath
                 )
             );
+
         } else if (
             entry.isFile() &&
             entry.name.endsWith(
                 '.json'
             )
         ) {
+
             result.push(
                 fullPath
             );
@@ -428,86 +443,108 @@ function findJsonFiles(
 }
 
 
+/*
+ * Recursively resolve API test-data from API_TEST_DATA_ROOT.
+ * Supports:
+ * - file name matching by basename
+ * - keyword matching within nested JSON objects
+ * - any domain folder structure without hardcoding pet/store/user
+ */
 function resolveTestDataFile(
     apiData
 ) {
 
-    /*
-     * FIX:
-     * Use testDataRoot, which is the
-     * configured environment variable value.
-     */
     const root =
         path.resolve(
             process.cwd(),
             testDataRoot
         );
 
-    /*
-     * apiData may already be a filename:
-     *
-     * pet-get-petId-test-data.json
-     *
-     * or a keyword:
-     *
-     * validPet
-     */
     if (
-        apiData.endsWith(
-            '.json'
-        )
+        !fs.existsSync(root)
     ) {
-        const candidates = [
-            path.join(
-                root,
-                'pet',
-                apiData
-            ),
-
-            path.join(
-                root,
-                apiData
-            )
-        ];
-
-        const existing =
-            candidates.find(
-                file =>
-                    fs.existsSync(
-                        file
-                    )
-            );
-
-        if (existing) {
-            return existing;
-        }
+        throw new Error(
+            `API test-data root does not exist: "${root}"`
+        );
     }
 
-    /*
-     * Search recursively under test-data.
-     */
     const files =
         findJsonFiles(
             root
         );
 
-    const matching =
+    if (
+        files.length === 0
+    ) {
+        throw new Error(
+            `No API test-data JSON files were found under "${root}".`
+        );
+    }
+
+    const filenameMatch =
+        files.find(
+            file =>
+                path.basename(file) === apiData
+        );
+
+    if (filenameMatch) {
+        return filenameMatch;
+    }
+
+    const valueMatch =
         files.find(
             file => {
                 const json =
-                    readJsonFile(
-                        file
-                    );
+                    readJsonFile(file);
 
-                return Object.prototype.hasOwnProperty.call(
-                    json,
-                    apiData
-                );
+                function findKey(current) {
+                    if (
+                        current === null ||
+                        current === undefined
+                    ) {
+                        return false;
+                    }
+
+                    if (
+                        Array.isArray(current)
+                    ) {
+                        return current.some(findKey);
+                    }
+
+                    if (
+                        typeof current !== 'object'
+                    ) {
+                        return false;
+                    }
+
+                    for (
+                        const [
+                            key,
+                            value
+                        ] of Object.entries(current)
+                    ) {
+                        if (
+                            key === apiData
+                        ) {
+                            return true;
+                        }
+
+                        if (
+                            findKey(value)
+                        ) {
+                            return true;
+                        }
+                    }
+
+                    return false;
+                }
+
+                return findKey(json);
             }
         );
 
-    if (matching) {
-        return matching;
+    if (valueMatch) {
+        return valueMatch;
     }
 
     throw new Error(
@@ -520,12 +557,14 @@ function getKeywordData(
     testData,
     keyword
 ) {
+
     if (
         !Object.prototype.hasOwnProperty.call(
             testData,
             keyword
         )
     ) {
+
         throw new Error(
             `Test-data keyword "${keyword}" was not found. ` +
             `Available keywords: ${Object.keys(testData).join(', ')}`
@@ -540,6 +579,7 @@ function getKeywordData(
         typeof keywordData !== 'object' ||
         Array.isArray(keywordData)
     ) {
+
         throw new Error(
             `Test-data keyword "${keyword}" must contain an object.`
         );
@@ -616,6 +656,7 @@ function buildRequestBodyFromTable(
     dataTable,
     variables
 ) {
+
     const rows =
         dataTable.hashes();
 
@@ -623,6 +664,7 @@ function buildRequestBodyFromTable(
         !rows ||
         rows.length === 0
     ) {
+
         throw new Error(
             'The request body DataTable cannot be empty.'
         );
@@ -633,6 +675,7 @@ function buildRequestBodyFromTable(
     for (
         const row of rows
     ) {
+
         const field =
             row.field?.trim();
 
@@ -640,30 +683,29 @@ function buildRequestBodyFromTable(
             row.value?.trim();
 
         if (!field) {
+
             throw new Error(
                 'Request body field cannot be empty.'
             );
         }
 
         if (!valueKeyword) {
+
             throw new Error(
                 `Request body field "${field}" does not have a value keyword.`
             );
         }
 
-        /*
-         * The value column points to a keyword
-         * inside the selected test-data JSON.
-         */
         const selectedKeywordData =
             keywordData[
-                valueKeyword
+            valueKeyword
             ];
 
         if (
             selectedKeywordData ===
             undefined
         ) {
+
             throw new Error(
                 `Request body value keyword "${valueKeyword}" ` +
                 `was not found in the selected test-data.`
@@ -676,11 +718,6 @@ function buildRequestBodyFromTable(
                 field
             );
 
-        /*
-         * Resolve runtime/example placeholders.
-         *
-         * Missing placeholders become null.
-         */
         const resolvedValue =
             resolveDynamicData(
                 cloneValue(value),
@@ -712,6 +749,7 @@ async function buildRequestDefinition(
     apiData,
     bodyFieldTable = null
 ) {
+
     const endpoint =
         await resolveEndpoint(
             world
@@ -727,13 +765,6 @@ async function buildRequestDefinition(
             testDataFile
         );
 
-    /*
-     * apiData can be:
-     *
-     * validPet
-     *
-     * or a JSON filename.
-     */
     let keyword;
 
     if (
@@ -742,9 +773,12 @@ async function buildRequestDefinition(
             apiData
         )
     ) {
+
         keyword =
             apiData;
+
     } else {
+
         keyword =
             Object.keys(
                 allTestData
@@ -766,49 +800,34 @@ async function buildRequestDefinition(
     world.apiData =
         apiData;
 
-    /*
-     * Request structure is taken from
-     * endpoint registry / page-object data.
-     */
     const requestBuilder =
         new ApiRequestBuilderUtils();
 
-    /*
-     * Resolve path parameters.
-     */
     world.pathParams =
         resolveDynamicData(
             keywordData.pathParams || {},
             world.variables
         );
 
-    /*
-     * Resolve query parameters.
-     */
     world.queryParams =
         resolveDynamicData(
             keywordData.queryParams || {},
             world.variables
         );
 
-    /*
-     * Resolve headers.
-     */
     const headers =
         resolveDynamicData(
             keywordData.headers || {},
             world.variables
         );
 
-    /*
-     * Resolve URL.
-     */
     let url =
         keywordData.url ||
         endpoint.path ||
         endpoint.url;
 
     if (!url) {
+
         throw new Error(
             `URL/path is not defined for endpoint "${world.endpointKey}".`
         );
@@ -823,9 +842,6 @@ async function buildRequestDefinition(
             world.variables
         );
 
-    /*
-     * Build headers.
-     */
     world.requestHeaders =
         requestBuilder.buildHeaders(
             headers,
@@ -839,10 +855,6 @@ async function buildRequestDefinition(
     world.requestMethod =
         method.toUpperCase();
 
-    /*
-     * Build request body for
-     * POST / PUT / PATCH.
-     */
     if (
         [
             'POST',
@@ -852,6 +864,7 @@ async function buildRequestDefinition(
             method.toUpperCase()
         )
     ) {
+
         if (bodyFieldTable) {
 
             world.requestPayload =
@@ -908,6 +921,7 @@ async function resolveEndpointKey(
     requestMethod,
     requestVersion
 ) {
+
     const normalizedPath =
         String(requestPath)
             .trim();
@@ -933,13 +947,14 @@ async function resolveEndpointKey(
         )
             .trim()
             .toUpperCase() ===
-            normalizedMethod &&
+        normalizedMethod &&
         String(
             world.endpoint.version
         )
             .trim() ===
-            normalizedVersion
+        normalizedVersion
     ) {
+
         return world.endpointKey;
     }
 
@@ -958,6 +973,7 @@ async function resolveEndpointKey(
             endpoints
         )
     ) {
+
         const endpointPath =
             endpoint.path ??
             endpoint.basePath;
@@ -977,12 +993,13 @@ async function resolveEndpointKey(
 
         if (
             endpointPath ===
-                normalizedPath &&
+            normalizedPath &&
             endpointMethod ===
-                normalizedMethod &&
+            normalizedMethod &&
             endpointVersion ===
-                normalizedVersion
+            normalizedVersion
         ) {
+
             world.endpointKey =
                 endpointKey;
 
@@ -1019,6 +1036,7 @@ async function resolveEndpointKey(
 async function getEndpoint(
     world
 ) {
+
     const registry =
         await loadEndpointRegistry();
 
@@ -1033,10 +1051,11 @@ async function getEndpoint(
 
     const endpoint =
         endpoints[
-            endpointKey
+        endpointKey
         ];
 
     if (!endpoint) {
+
         throw new Error(
             `Endpoint metadata not found for: ${endpointKey}`
         );
@@ -1060,6 +1079,7 @@ Before(
         pickle,
         gherkinDocument
     }) {
+
         this.pickle =
             pickle;
 
@@ -1087,6 +1107,7 @@ Before(
 async function loadEndpointTestData(
     endpoint
 ) {
+
     const configuration =
         typeof endpoint.testData === 'string'
             ? {
@@ -1098,6 +1119,7 @@ async function loadEndpointTestData(
     if (
         !configuration?.source
     ) {
+
         throw new Error(
             'Test-data source filename is missing from endpoint metadata.'
         );
@@ -1124,6 +1146,7 @@ function loadEndpointSchema(
     schemaName,
     endpointMetadata
 ) {
+
     const targetFileName =
         schemaName ||
         endpointMetadata?.schemaFile;
@@ -1162,9 +1185,11 @@ function loadEndpointSchema(
     for (
         const dir of searchDirs
     ) {
+
         if (
             fs.existsSync(dir)
         ) {
+
             const files =
                 fs.readdirSync(
                     dir
@@ -1185,9 +1210,10 @@ function loadEndpointSchema(
                         if (
                             targetFileName
                         ) {
+
                             return (
                                 file ===
-                                    targetFileName ||
+                                targetFileName ||
                                 file.includes(
                                     targetFileName.replace(
                                         '.json',
@@ -1202,6 +1228,7 @@ function loadEndpointSchema(
                 );
 
             if (match) {
+
                 resolvedPath =
                     path.join(
                         dir,
@@ -1214,6 +1241,7 @@ function loadEndpointSchema(
     }
 
     if (!resolvedPath) {
+
         throw new Error(
             `Schema file matching "${targetFileName || 'schema.json'}" was not found inside pet, store, or user subfolders.`
         );
@@ -1235,6 +1263,15 @@ function loadEndpointSchema(
    SCENARIO DATA
    ========================================================= */
 
+/*
+ * Generic recursive scenario keyword resolver.
+ * Supports:
+ * - valid pet
+ * - validPet
+ * - valid-pet
+ * - valid_pet
+ * - nested object keys and array members
+ */
 function resolveScenarioData(
     testData,
     apiData,
@@ -1250,79 +1287,103 @@ function resolveScenarioData(
         );
     }
 
-    /*
-     * Exact key match.
-     */
-    if (
-        Object.prototype.hasOwnProperty.call(
-            testData,
-            apiData
-        )
-    ) {
-        return resolveDynamicData(
-            testData[apiData],
-            variables,
-            options
-        );
-    }
+    const normalizeKey =
+        value =>
+            String(value)
+                .trim()
+                .replace(/[\s_-]+/g, '')
+                .toLowerCase();
 
-    /*
-     * Feature may provide a JSON filename.
-     *
-     * When the loaded file contains only one
-     * scenario object, use that object.
-     */
-    if (
-        typeof apiData === 'string' &&
-        apiData
-            .toLowerCase()
-            .endsWith('.json')
-    ) {
-        const keys =
-            Object.keys(
-                testData
-            );
+    const targetKey =
+        normalizeKey(apiData);
 
+    function findScenario(current) {
         if (
-            keys.length === 1
+            current === null ||
+            current === undefined
         ) {
-            return resolveDynamicData(
-                testData[keys[0]],
-                variables,
-                options
-            );
+            return undefined;
         }
 
-        return resolveDynamicData(
-            testData,
-            variables,
-            options
-        );
+        if (
+            Array.isArray(current)
+        ) {
+            for (
+                const item of current
+            ) {
+                const result =
+                    findScenario(item);
+
+                if (
+                    result !== undefined
+                ) {
+                    return result;
+                }
+            }
+
+            return undefined;
+        }
+
+        if (
+            typeof current !== 'object'
+        ) {
+            return undefined;
+        }
+
+        /*
+         * First search object keys in the current object.
+         */
+        for (
+            const [
+                key,
+                value
+            ] of Object.entries(current)
+        ) {
+            if (
+                normalizeKey(key) ===
+                targetKey
+            ) {
+                return resolveDynamicData(
+                    cloneValue(value),
+                    variables,
+                    options
+                );
+            }
+        }
+
+        /*
+         * Then search nested objects and arrays recursively.
+         */
+        for (
+            const value of Object.values(current)
+        ) {
+            if (
+                value &&
+                typeof value === 'object'
+            ) {
+                const result =
+                    findScenario(value);
+
+                if (
+                    result !== undefined
+                ) {
+                    return result;
+                }
+            }
+        }
+
+        return undefined;
     }
 
-    /*
-     * Search one level below the top-level object.
-     */
-    for (
-        const group
-        of Object.values(
+    const resolved =
+        findScenario(
             testData
-        )
+        );
+
+    if (
+        resolved !== undefined
     ) {
-        if (
-            group &&
-            typeof group === 'object' &&
-            Object.prototype.hasOwnProperty.call(
-                group,
-                apiData
-            )
-        ) {
-            return resolveDynamicData(
-                group[apiData],
-                variables,
-                options
-            );
-        }
+        return resolved;
     }
 
     throw new Error(
@@ -1341,11 +1402,13 @@ function buildRequestData(
     variables = {},
     options = {}
 ) {
+
     const request =
         scenarioData?.request ??
         scenarioData;
 
     return {
+
         pathParams:
             resolveDynamicData(
                 request?.pathParams ?? {},
@@ -1387,6 +1450,7 @@ function buildRequestUrl(
     pathParams,
     queryParams
 ) {
+
     return world.apiRequestBuilder
         .buildUrl(
             endpoint,
@@ -1400,6 +1464,7 @@ function buildRequestHeaders(
     world,
     headers
 ) {
+
     return world.apiRequestBuilder
         .buildHeaders({
             headers
@@ -1416,6 +1481,7 @@ async function sendRequest(
     method,
     requestOptions
 ) {
+
     const normalized =
         String(method)
             .trim()
@@ -1451,10 +1517,11 @@ async function sendRequest(
 
     const requestFunction =
         functions[
-            normalized
+        normalized
         ];
 
     if (!requestFunction) {
+
         throw new Error(
             `Unsupported HTTP method: ${method}`
         );
@@ -1479,6 +1546,7 @@ Given(
         method,
         apiData
     ) {
+
         const testDataFile =
             path.resolve(
                 testDataRoot,
@@ -1493,25 +1561,38 @@ Given(
 
         let scenarioData;
 
+        const resolutionOptions =
+            String(method)
+                .trim()
+                .toUpperCase() === 'POST'
+                ? {
+                    missingPlaceholderValue:
+                        null
+                }
+                : {};
+
         if (
             Object.keys(
                 allTestData
             ).length === 1
         ) {
+
             scenarioData =
                 allTestData[
-                    Object.keys(
-                        allTestData
-                    )[0]
+                Object.keys(
+                    allTestData
+                )[0]
                 ];
 
         } else if (
             allTestData.request
         ) {
+
             scenarioData =
                 allTestData;
 
         } else {
+
             scenarioData =
                 resolveScenarioData(
                     allTestData,
@@ -1538,20 +1619,23 @@ Given(
             process.env.API_VERSION;
 
         if (!requestPath) {
+
             throw new Error(
                 `API path/url is missing in test data: ${apiData}`
             );
         }
 
         if (!requestMethod) {
+
             throw new Error(
                 `HTTP method is missing in test data: ${apiData}`
             );
         }
 
         if (!requestVersion) {
+
             throw new Error(
-                `API version is missing in test data: ${apiData} ` +
+                `API version is missing for ${apiData} ` +
                 'and API_VERSION is not configured.'
             );
         }
@@ -1568,6 +1652,7 @@ Given(
             this.endpoint;
 
         if (!this.apiRequestBuilder) {
+
             const registry =
                 await loadEndpointRegistry();
 
@@ -1582,14 +1667,6 @@ Given(
             String(method)
                 .trim()
                 .toUpperCase();
-
-        const resolutionOptions =
-            requestedMethod === 'POST'
-                ? {
-                    missingPlaceholderValue:
-                        null
-                }
-                : {};
 
         this.resolutionOptions =
             resolutionOptions;
@@ -1685,6 +1762,12 @@ Given(
 
 /* =========================================================
    POST / PUT / PATCH REQUEST WITH BODY
+
+   API DATA:
+   API_TEST_DATA_ROOT
+
+   SCENARIO VALUES:
+   API_SCENARIO_DATA_ROOT
    ========================================================= */
 
 Given(
@@ -1695,67 +1778,152 @@ Given(
         apiData,
         dataTable
     ) {
-        const requestDefinition =
-            await buildRequestDefinition(
-                this,
-                method,
-                apiData,
-                dataTable
-            );
-
-        this.requestDefinition =
-            requestDefinition;
-
-        console.log(
-            `Created ${method.toUpperCase()} request with request body:`
-        );
-
-        console.log(
-            'URL:',
-            this.requestUrl
-        );
-
-        console.log(
-            'Headers:',
-            this.requestHeaders
-        );
-
-        console.log(
-            'Request body:',
-            JSON.stringify(
-                this.requestPayload,
-                null,
-                2
-            )
-        );
-    }
-);
-
-
-/* =========================================================
-   SEND API REQUEST
-   ========================================================= */
-
-Then(
-    'the user sends a {word} request to API',
-
-    async function (
-        method
-    ) {
         const requestedMethod =
             String(method)
                 .trim()
                 .toUpperCase();
 
-        if (!this.endpoint) {
+        const resolutionOptions = {
+            missingPlaceholderValue:
+                null
+        };
+
+        this.variables = {
+            ...(this.variables ?? {}),
+            ...(this.exampleVariables ?? {})
+        };
+
+        /* =====================================================
+           1. RESOLVE API DATA FILE
+           ===================================================== */
+
+        const apiDataFile =
+            resolveTestDataFile(
+                apiData
+            );
+
+        const apiDataJson =
+            readJsonFile(
+                apiDataFile
+            );
+
+        console.log(
+            'API data file resolved:',
+            apiDataFile
+        );
+
+        /* =====================================================
+           2. RESOLVE API REQUEST DEFINITION
+           ===================================================== */
+
+        let scenarioData =
+            apiDataJson;
+
+        const requestDefinition =
+            apiDataJson.request ??
+            apiDataJson;
+
+        if (
+            !requestDefinition.url &&
+            !requestDefinition.path
+        ) {
+            const keys =
+                Object.keys(
+                    apiDataJson
+                );
+
+            if (
+                keys.length === 1
+            ) {
+                scenarioData =
+                    apiDataJson[
+                    keys[0]
+                    ];
+            } else {
+                throw new Error(
+                    `No API request definition was found inside "${apiDataFile}".`
+                );
+            }
+        }
+
+        const request =
+            scenarioData.request ??
+            scenarioData;
+
+        const requestPath =
+            request.url ??
+            request.path;
+
+        const requestMethod =
+            request.method ??
+            requestedMethod;
+
+        const requestVersion =
+            request.version ??
+            process.env.API_VERSION;
+
+        if (!requestPath) {
             throw new Error(
-                'Endpoint metadata is not available.'
+                `API path/url is missing in "${apiDataFile}".`
             );
         }
 
+        if (!requestMethod) {
+            throw new Error(
+                `HTTP method is missing in "${apiDataFile}".`
+            );
+        }
+
+        if (!requestVersion) {
+            throw new Error(
+                `API version is missing in "${apiDataFile}".`
+            );
+        }
+
+        /* =====================================================
+           3. RESOLVE ENDPOINT
+           ===================================================== */
+
+        const endpointKey =
+            await resolveEndpointKey(
+                this,
+                requestPath,
+                requestMethod,
+                requestVersion
+            );
+
+        const registry =
+            await loadEndpointRegistry();
+
+        const endpoints =
+            registry.endpoints ??
+            registry;
+
+        const endpoint =
+            endpoints[
+            endpointKey
+            ];
+
+        if (!endpoint) {
+            throw new Error(
+                `Endpoint metadata not found for "${endpointKey}".`
+            );
+        }
+
+        this.endpointKey =
+            endpointKey;
+
+        this.endpoint =
+            endpoint;
+
+        /* =====================================================
+           4. METHOD VALIDATION
+           ===================================================== */
+
         const configuredMethod =
             String(
-                this.endpoint.method
+                endpoint.method ??
+                requestMethod
             )
                 .trim()
                 .toUpperCase();
@@ -1768,47 +1936,386 @@ Then(
             `but endpoint registry contains "${configuredMethod}".`
         );
 
-        if (!this.requestUrl) {
+        /* =====================================================
+           5. REUSE EXISTING REQUEST DATA FUNCTION
+           ===================================================== */
+
+        const requestData =
+            buildRequestData(
+                scenarioData,
+                endpoint,
+                this.variables,
+                resolutionOptions
+            );
+
+        this.pathParams =
+            requestData.pathParams;
+
+        this.queryParams =
+            requestData.queryParams;
+
+        /* =====================================================
+           6. SCENARIO DATA ROOT
+           ===================================================== */
+
+        const configuredScenarioRoot =
+            process.env.API_SCENARIO_DATA_ROOT;
+
+        if (!configuredScenarioRoot) {
             throw new Error(
-                'Request URL is not available.'
+                'API_SCENARIO_DATA_ROOT is not configured.'
             );
         }
 
-        if (!this.requestContext) {
+        const scenarioRoot =
+            path.resolve(
+                process.cwd(),
+                configuredScenarioRoot
+            );
+
+        const scenarioFiles =
+            findJsonFiles(
+                scenarioRoot
+            );
+
+        if (
+            scenarioFiles.length === 0
+        ) {
+            throw new Error(
+                `No scenario test-data JSON files were found under "${scenarioRoot}".`
+            );
+        }
+
+        /* =====================================================
+           7. REQUEST BODY DATATABLE
+           ===================================================== */
+
+        const rows =
+            dataTable.hashes();
+
+        if (
+            !rows ||
+            rows.length === 0
+        ) {
+            throw new Error(
+                'The request body DataTable cannot be empty.'
+            );
+        }
+
+        const requestBody =
+            {};
+
+        const keywordCache =
+            new Map();
+
+        /* =====================================================
+           8. RESOLVE EACH FIELD
+           ===================================================== */
+
+        for (
+            const row of rows
+        ) {
+            const field =
+                row.field?.trim();
+
+            const valueKeyword =
+                row.value?.trim();
+
+            if (!field) {
+                throw new Error(
+                    'Request body field cannot be empty.'
+                );
+            }
+
+            if (!valueKeyword) {
+                throw new Error(
+                    `Request body field "${field}" does not have a value keyword.`
+                );
+            }
+
+            const normalizedKeyword =
+                valueKeyword
+                    .replace(
+                        /[\s_-]+/g,
+                        ''
+                    )
+                    .toLowerCase();
+
+            let keywordData =
+                keywordCache.get(
+                    normalizedKeyword
+                );
+
+            if (
+                keywordData === undefined
+            ) {
+                for (
+                    const file of scenarioFiles
+                ) {
+                    const scenarioTestData =
+                        readJsonFile(
+                            file
+                        );
+
+                    try {
+                        keywordData =
+                            resolveScenarioData(
+                                scenarioTestData,
+                                valueKeyword,
+                                this.variables,
+                                resolutionOptions
+                            );
+
+                        keywordCache.set(
+                            normalizedKeyword,
+                            keywordData
+                        );
+
+                        console.log(
+                            'Test-data keyword resolved:',
+                            {
+                                keyword:
+                                    valueKeyword,
+
+                                file
+                            }
+                        );
+
+                        break;
+
+                    } catch {
+                        keywordData =
+                            undefined;
+                    }
+                }
+            }
+
+            if (
+                keywordData === undefined
+            ) {
+                throw new Error(
+                    `Test-data keyword "${valueKeyword}" ` +
+                    `was not found under "${scenarioRoot}".`
+                );
+            }
+
+            const value =
+                getNestedValue(
+                    keywordData,
+                    field
+                );
+
+            const resolvedValue =
+                resolveDynamicData(
+                    cloneValue(value),
+                    this.variables,
+                    resolutionOptions
+                );
+
+            setNestedValue(
+                requestBody,
+                field,
+                resolvedValue
+            );
+        }
+
+        /* =====================================================
+           9. REQUEST BUILDER
+           ===================================================== */
+
+        if (!this.apiRequestBuilder) {
+            this.apiRequestBuilder =
+                new ApiRequestBuilderUtils(
+                    endpoints
+                );
+        }
+
+        /* =====================================================
+           10. HEADERS
+           ===================================================== */
+
+        this.requestHeaders =
+            buildRequestHeaders(
+                this,
+                requestData.headers
+            );
+
+        /* =====================================================
+           11. URL
+           ===================================================== */
+
+        this.requestUrl =
+            buildRequestUrl(
+                this,
+                endpoint,
+                this.pathParams,
+                this.queryParams
+            );
+
+        /* =====================================================
+           12. FINAL REQUEST DATA
+           ===================================================== */
+
+        this.requestMethod =
+            configuredMethod;
+
+        this.requestPayload =
+            requestBody;
+
+        this.apiData =
+            apiData;
+
+        this.testData =
+            apiDataJson;
+
+        this.scenarioData =
+            scenarioData;
+
+        this.resolutionOptions =
+            resolutionOptions;
+
+        /* =====================================================
+           13. DEBUG
+           ===================================================== */
+
+        console.log(
+            '[API Request Prepared]',
+            {
+                endpointKey:
+                    this.endpointKey,
+
+                apiData:
+                    this.apiData,
+
+                method:
+                    this.requestMethod,
+
+                version:
+                    endpoint.version,
+
+                url:
+                    this.requestUrl
+            }
+        );
+
+        console.log(
+            '[API Request Headers]',
+            this.requestHeaders
+        );
+
+        console.log(
+            '[API Request Body]',
+            JSON.stringify(
+                this.requestPayload,
+                null,
+                2
+            )
+        );
+    }
+);
+
+/* =========================================================
+   SEND PREPARED API REQUEST
+   Supports:
+   GET / POST / PUT / PATCH / DELETE
+   ========================================================= */
+
+When(
+    'the user sends a {word} request to API',
+    async function (method) {
+
+        if (!this.requestUrl) {
+            throw new Error(
+                'Request URL has not been created.'
+            );
+        }
+
+        if (!this.apiRequestUtils) {
+            this.apiRequestUtils =
+                new ApiRequestUtils(
+                    new ApiResponseUtils()
+                );
+        }
+
+        // ----------------------------------------------------
+        // Get Playwright APIRequestContext
+        // ----------------------------------------------------
+
+        const context =
+            this.apiRequestContext ??
+            this.requestContext ??
+            this.apiContext;
+
+        if (!context) {
             throw new Error(
                 'Playwright APIRequestContext is not initialized.'
             );
         }
 
-        const requestOptions = {
-            url:
-                this.requestUrl,
+        // ----------------------------------------------------
+        // Request method
+        // ----------------------------------------------------
 
-            headers:
-                this.requestHeaders,
+        const requestMethod =
+            String(
+                this.requestMethod ?? method
+            ).toUpperCase();
 
-            data:
-                this.requestPayload
+        // ----------------------------------------------------
+        // Request object
+        // ----------------------------------------------------
+
+        const request = {
+            url: this.requestUrl,
+            headers: this.requestHeaders ?? {}
         };
 
-        this.requestResult =
-            await sendRequest(
-                this,
-                requestedMethod,
-                requestOptions
+        // ----------------------------------------------------
+        // POST / PUT / PATCH request body
+        // ----------------------------------------------------
+
+        if (
+            ['POST', 'PUT', 'PATCH']
+                .includes(requestMethod)
+        ) {
+            request.data =
+                this.requestPayload;
+        }
+
+        console.log(
+            `Sending ${requestMethod} request to: ${this.requestUrl}`
+        );
+
+        // ----------------------------------------------------
+        // Use existing ApiRequestUtils.send()
+        // ----------------------------------------------------
+
+        this.apiResult =
+            await this.apiRequestUtils.send(
+                context,
+                {
+                    ...request,
+                    method: requestMethod
+                }
             );
 
+        // ----------------------------------------------------
+        // Preserve existing response objects
+        // ----------------------------------------------------
+
         this.response =
-            this.requestResult.response;
+            this.apiResult.response;
+
+        this.apiResponseUtils =
+            this.apiRequestUtils.responseUtils;
 
         this.responseBody =
-            this.requestResult.body;
-
-        this.responseHeaders =
-            this.requestResult.headers;
+            this.apiResult.body ??
+            this.apiResult.responseBody ??
+            this.apiResult.data;
     }
-);
 
+);
 
 /* =========================================================
    RESPONSE STATUS
@@ -1820,7 +2327,9 @@ Then(
     async function (
         expectedStatus
     ) {
+
         if (!this.response) {
+
             throw new Error(
                 'Response is not available for status validation.'
             );
@@ -1839,35 +2348,60 @@ Then(
 );
 
 
-/* =========================================================
-   RESPONSE CONTENT TYPE
-   ========================================================= */
+// ============================================================
+// CONTENT TYPE VALIDATION
+// ============================================================
 
 Then(
     'verify the content type in response header should be {string}',
+    async function (expectedContentType) {
 
-    async function (
-        expectedContentType
-    ) {
+        if (!this.response) {
+
+            throw new Error(
+                'API response is not available.'
+            );
+        }
+
+
+        const headers =
+            this.response.headers();
+
+
+        const actualContentType =
+            headers['content-type'] ??
+            headers['Content-Type'] ??
+            '';
+
+
+        const expected =
+            String(
+                expectedContentType
+            ).toLowerCase();
+
+
         const actual =
-            this.responseHeaders?.[
-                'content-type'
-            ] ?? '';
+            String(
+                actualContentType
+            ).toLowerCase();
 
-        assert.ok(
-            actual
-                .toLowerCase()
-                .includes(
-                    expectedContentType
-                        .toLowerCase()
-                ),
 
-            `Expected Content-Type "${expectedContentType}" ` +
-            `but received "${actual}"`
+        if (!actual.includes(expected)) {
+
+            throw new Error(
+                [
+                    `Expected content type to contain "${expectedContentType}",`,
+                    `but received "${actualContentType}".`
+                ].join(' ')
+            );
+        }
+
+
+        console.log(
+            `Content-Type validated successfully: ${actualContentType}`
         );
     }
 );
-
 
 /* =========================================================
    RESPONSE SCHEMA
@@ -1879,22 +2413,23 @@ Then(
     async function (
         schemaName
     ) {
+
         let responseBody =
             this.responseBody;
 
-        /*
-         * Safely parse responseBody if it is
-         * passed as a string or double-stringified JSON.
-         */
         while (
             typeof responseBody === 'string'
         ) {
+
             try {
+
                 responseBody =
                     JSON.parse(
                         responseBody
                     );
+
             } catch (e) {
+
                 break;
             }
         }
@@ -1922,6 +2457,7 @@ Then(
             );
 
         if (!valid) {
+
             const errorDetails =
                 JSON.stringify(
                     validate.errors,
