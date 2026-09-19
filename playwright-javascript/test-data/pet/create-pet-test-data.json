@@ -1,10 +1,86 @@
 {
-    "validPet" : {
-        "id": "789",
-        "category.id": "3",
-        "category.name": "cats",
-        "name":"Kitty",
-        "photoUrls":"https://example.com/cats.jpg",
-        "status":"available"
-    }
+  "valid pet": {
+    "id": 10,
+    "category": {
+      "id": 1,
+      "name": "Dogs"
+    },
+    "name": "doggie",
+    "photoUrls": [
+      "https://example.com/dog.jpg"
+    ],
+    "status": "available"
+  },
+  "pending pet": {
+    "id": 100,
+    "category": {
+      "id": 2,
+      "name": "cats"
+    },
+    "name": "Kattie",
+    "photoUrls": [
+      "https://example.com/cat.jpg"
+    ],
+    "status": "pending"
+  },
+  "sold pet": {
+    "id": 110,
+    "category": {
+      "id": 3,
+      "name": "spark"
+    },
+    "name": "sparkie",
+    "photoUrls": [
+      "https://example.com/spark.jpg"
+    ],
+    "status": "sold"
+  },
+
+  "missing id pet": {
+    "id": null,
+    "category": {
+      "id": 4,
+      "name": "Dogs"
+    },
+    "name": "MissingIdPet",
+    "photoUrls": [
+      "https://example.com/missing-id.jpg"
+    ],
+    "status": "available"
+  },
+  "missing name pet": {
+    "id": 120,
+    "category": {
+      "id": 5,
+      "name": "cats"
+    },
+    "name": null,
+    "photoUrls": [
+      "https://example.com/missing-name.jpg"
+    ],
+    "status": "available"
+  },
+  "invalid status pet": {
+    "id": 130,
+    "category": {
+      "id": 6,
+      "name": "birds"
+    },
+    "name": "InvalidStatusPet",
+    "photoUrls": [
+      "https://example.com/invalid-status.jpg"
+    ],
+    "status": "invalid-status"
+  },
+  "invalid type pet": {
+    "id": "invalid-id",
+    "category": {
+      "id": "invalid-category-id",
+      "name": 123
+    },
+    "name": 456,
+    "photoUrls": "invalid-photo-url",
+    "status": 789
+  },
+  "empty request body": {}
 }

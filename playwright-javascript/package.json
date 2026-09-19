@@ -4,10 +4,10 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-  "test": "node run-tests.js",
-  "cucumber": "cucumber-js",
-  "report": "node generateReport.js"
-},
+    "test": "node run-tests.js",
+    "cucumber": "cucumber-js",
+    "report": "node generateReport.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -19,6 +19,7 @@
     "uuid": "^14.0.2"
   },
   "devDependencies": {
+    "@cucumber/html-formatter": "^24.1.1",
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.4.0",
     "cucumber-html-reporter": "^7.2.0",
