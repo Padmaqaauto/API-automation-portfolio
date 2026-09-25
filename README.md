@@ -237,16 +237,7 @@ API-automation-portfolio/
 │   ├── ⚙️ cucumber.js
 │   ├── 📦 package.json
 │   └── ▶️ run-tests.js
-│
-├── 🟨 playwright-typescript/
-│   └── 🚧 Planned
-│
-├── ☕ selenium-java/
-│   └── 🚧 Planned
-│
-└── 📱 appium-mobile/
-    └── 🚧 Planned
-```
+
 
 ---
 
