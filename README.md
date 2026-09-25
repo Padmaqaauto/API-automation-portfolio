@@ -428,9 +428,6 @@ The framework supports test execution reporting to provide visibility into:
 * [ ] ⚡ API performance testing
 * [ ] 🐳 Docker-based execution
 * [ ] 🔄 CI/CD regression pipeline
-* [ ] 🟨 TypeScript API automation
-* [ ] ☕ Selenium Java automation
-* [ ] 📱 Appium mobile automation
 
 ---
 
