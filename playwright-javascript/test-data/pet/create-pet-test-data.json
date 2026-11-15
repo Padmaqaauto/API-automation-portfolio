@@ -6,9 +6,7 @@
       "name": "Dogs"
     },
     "name": "doggie",
-    "photoUrls": [
-      "https://example.com/dog.jpg"
-    ],
+    "photoUrls": ["https://example.com/dog.jpg"],
     "status": "available"
   },
   "pending pet": {
@@ -18,9 +16,7 @@
       "name": "cats"
     },
     "name": "Kattie",
-    "photoUrls": [
-      "https://example.com/cat.jpg"
-    ],
+    "photoUrls": ["https://example.com/cat.jpg"],
     "status": "pending"
   },
   "sold pet": {
@@ -30,9 +26,7 @@
       "name": "spark"
     },
     "name": "sparkie",
-    "photoUrls": [
-      "https://example.com/spark.jpg"
-    ],
+    "photoUrls": ["https://example.com/spark.jpg"],
     "status": "sold"
   },
 
@@ -43,9 +37,7 @@
       "name": "Dogs"
     },
     "name": "MissingIdPet",
-    "photoUrls": [
-      "https://example.com/missing-id.jpg"
-    ],
+    "photoUrls": ["https://example.com/missing-id.jpg"],
     "status": "available"
   },
   "missing name pet": {
@@ -55,9 +47,7 @@
       "name": "cats"
     },
     "name": null,
-    "photoUrls": [
-      "https://example.com/missing-name.jpg"
-    ],
+    "photoUrls": ["https://example.com/missing-name.jpg"],
     "status": "available"
   },
   "invalid status pet": {
@@ -67,9 +57,7 @@
       "name": "birds"
     },
     "name": "InvalidStatusPet",
-    "photoUrls": [
-      "https://example.com/invalid-status.jpg"
-    ],
+    "photoUrls": ["https://example.com/invalid-status.jpg"],
     "status": "invalid-status"
   },
   "invalid type pet": {

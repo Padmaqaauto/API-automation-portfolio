@@ -1,14 +1,9 @@
-import fs from 'node:fs/promises';
-const report =
-    'reports/cucumber-report.json';
+import fs from "node:fs/promises";
+const report = "reports/cucumber-report.json";
 try {
-    await fs.access(report);
-    console.log(
-        `Report ready for CI artifact upload: ${report}`
-    );
+  await fs.access(report);
+  console.log(`Report ready for CI artifact upload: ${report}`);
 } catch {
-    console.error(
-        `Report not found: ${report}`
-    );
-    process.exitCode = 1;
+  console.error(`Report not found: ${report}`);
+  process.exitCode = 1;
 }

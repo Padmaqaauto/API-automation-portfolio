@@ -1,15 +1,14 @@
-import Ajv from 'ajv';
-import { redactSecrets } from './common-utils.js';
+import Ajv from "ajv";
+import { redactSecrets } from "./common-utils.js";
 export class ApiResponseUtils {
   constructor() {
     this.ajv = new Ajv({
       allErrors: true,
-      strict: false
+      strict: false,
     });
   }
   async readBody(response) {
-    const text =
-      await response.text();
+    const text = await response.text();
     if (!text) {
       return null;
     }
@@ -20,33 +19,20 @@ export class ApiResponseUtils {
     }
   }
   async capture(response) {
-    const body =
-      await this.readBody(
-        response
-      );
+    const body = await this.readBody(response);
     return {
       status: response.status(),
       headers: response.headers(),
-      body
+      body,
     };
   }
-  validateSchema(
-    body,
-    schema,
-    schemaName = 'response schema'
-  ) {
-    const validate =
-      this.ajv.compile(schema);
-    const valid =
-      validate(body);
+  validateSchema(body, schema, schemaName = "response schema") {
+    const validate = this.ajv.compile(schema);
+    const valid = validate(body);
     if (!valid) {
       throw new Error(
         `Schema validation failed for ${schemaName}: ` +
-        JSON.stringify(
-          validate.errors,
-          null,
-          2
-        )
+          JSON.stringify(validate.errors, null, 2),
       );
     }
     return true;
@@ -54,10 +40,8 @@ export class ApiResponseUtils {
   logResponse(result) {
     console.log(
       `[ApiResponseUtils] Response: ${result.status}\n` +
-      `Headers: ${JSON.stringify(result.headers)}\n` +
-      `Body: ${JSON.stringify(
-        redactSecrets(result.body)
-      )}`
+        `Headers: ${JSON.stringify(result.headers)}\n` +
+        `Body: ${JSON.stringify(redactSecrets(result.body))}`,
     );
   }
 }

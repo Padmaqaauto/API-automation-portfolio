@@ -1,4 +1,4 @@
-import { request } from '@playwright/test';
+import { request } from "@playwright/test";
 export class ApiClient {
   constructor() {
     this.requestContext = null;
@@ -11,12 +11,12 @@ export class ApiClient {
       baseURL:
         process.env.API_BASE_URL ||
         process.env.BASE_URL ||
-        'https://petstore.swagger.io/v2',
+        "https://petstore.swagger.io/v2",
       extraHTTPHeaders: {
-        'Content-Type': 'application/json',
-        Accept: 'application/json'
+        "Content-Type": "application/json",
+        Accept: "application/json",
       },
-      ignoreHTTPSErrors: true
+      ignoreHTTPSErrors: true,
     });
   }
   async close() {
