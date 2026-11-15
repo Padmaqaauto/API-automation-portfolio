@@ -17,12 +17,13 @@ Then(
   },
 );
 
-
 Then("save the created pet details for the following GET", function () {
   const responseBody = this.responseBody;
 
   if (!responseBody || typeof responseBody !== "object") {
-    throw new Error("POST response body is not available or is not a JSON object.");
+    throw new Error(
+      "POST response body is not available or is not a JSON object.",
+    );
   }
 
   if (responseBody.id === undefined || responseBody.id === null) {
@@ -41,7 +42,9 @@ Then("save the created pet details for the following GET", function () {
 
 Then("verify the retrieved pet matches the created pet", function () {
   if (!this.createdPet) {
-    throw new Error("No created pet is available to compare with the GET response.");
+    throw new Error(
+      "No created pet is available to compare with the GET response.",
+    );
   }
 
   const fieldsToVerify = [

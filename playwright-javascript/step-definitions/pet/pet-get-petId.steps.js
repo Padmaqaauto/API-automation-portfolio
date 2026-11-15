@@ -63,64 +63,61 @@ function getCreatedPetFieldValue(fieldName) {
 // SET PET ID
 // =============================================================================
 
-Given(
-  "the user sets the pet ID to {string}",
-  async function (petIdKeyword) {
-    if (!this.endpoint) {
-      throw new Error(
-        "Endpoint metadata is not available. " +
-          'Make sure "the user creates a GET request URL and headers with api data" ' +
-          "step ran first.",
-      );
-    }
-
-    if (!this.apiRequestBuilder) {
-      throw new Error(
-        "API request builder is not initialized. " +
-          'Make sure "the user creates a GET request URL and headers with api data" ' +
-          "step ran first.",
-      );
-    }
-
-    let resolvedPetId;
-
-    if (petIdKeyword === "created pet ID") {
-      if (this.createdPetId === undefined || this.createdPetId === null) {
-        throw new Error(
-          'No created pet ID is available. Run the POST step first and save the created pet ID before using "created pet ID".',
-        );
-      }
-
-      resolvedPetId = this.createdPetId;
-    } else {
-      resolvedPetId = resolvePetTestData(petIdKeyword, "id");
-    }
-
-    this.petTestDataKeyword = petIdKeyword;
-
-    this.petTestData = {
-      id: resolvedPetId,
-    };
-
-    this.pathParams = {
-      ...this.pathParams,
-      petId: resolvedPetId,
-    };
-
-    this.requestUrl = this.apiRequestBuilder.buildUrl(
-      this.endpoint,
-      this.pathParams,
-      this.queryParams,
+Given("the user sets the pet ID to {string}", async function (petIdKeyword) {
+  if (!this.endpoint) {
+    throw new Error(
+      "Endpoint metadata is not available. " +
+        'Make sure "the user creates a GET request URL and headers with api data" ' +
+        "step ran first.",
     );
+  }
 
-    console.log("[Pet Test Data Resolved]", {
-      keyword: petIdKeyword,
-      field: "id",
-      value: resolvedPetId,
-      requestUrl: this.requestUrl,
-    });
-  },
-);
+  if (!this.apiRequestBuilder) {
+    throw new Error(
+      "API request builder is not initialized. " +
+        'Make sure "the user creates a GET request URL and headers with api data" ' +
+        "step ran first.",
+    );
+  }
+
+  let resolvedPetId;
+
+  if (petIdKeyword === "created pet ID") {
+    if (this.createdPetId === undefined || this.createdPetId === null) {
+      throw new Error(
+        'No created pet ID is available. Run the POST step first and save the created pet ID before using "created pet ID".',
+      );
+    }
+
+    resolvedPetId = this.createdPetId;
+  } else {
+    resolvedPetId = resolvePetTestData(petIdKeyword, "id");
+  }
+
+  this.petTestDataKeyword = petIdKeyword;
+
+  this.petTestData = {
+    id: resolvedPetId,
+  };
+
+  this.pathParams = {
+    ...this.pathParams,
+    petId: resolvedPetId,
+  };
+
+  this.requestUrl = this.apiRequestBuilder.buildUrl(
+    this.endpoint,
+    this.pathParams,
+    this.queryParams,
+  );
+
+  console.log("[Pet Test Data Resolved]", {
+    keyword: petIdKeyword,
+    field: "id",
+    value: resolvedPetId,
+    requestUrl: this.requestUrl,
+  });
+});
 
 // =============================================================================
 // VERIFY RESPONSE PET ID
@@ -160,7 +157,6 @@ Then(
 // =============================================================================
 // VERIFY RESPONSE PET NAME
 // =============================================================================
-
 
 Then(
   "verify the response pet name should be {string}",
@@ -203,11 +199,9 @@ Then(
   },
 );
 
-
 // =============================================================================
 // VERIFY RESPONSE PET STATUS
 // =============================================================================
-
 
 Then(
   "verify the response pet status should be {string}",
