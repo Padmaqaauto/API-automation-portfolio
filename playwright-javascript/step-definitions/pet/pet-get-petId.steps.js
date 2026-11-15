@@ -44,8 +44,19 @@ function loadPetTestData() {
 
 function resolvePetTestData(keyword, field) {
   const testData = loadPetTestData();
-
   return resolveTestDataField(testData, keyword, field);
+}
+
+// =============================================================================
+// GET CREATED PET VALUE
+// =============================================================================
+
+// eslint-disable-next-line no-unused-vars
+function getCreatedPetFieldValue(fieldName) {
+  if (!this.createdPet || !this.createdPet[fieldName]) {
+    return undefined;
+  }
+  return this.createdPet[fieldName];
 }
 
 // =============================================================================
@@ -54,7 +65,6 @@ function resolvePetTestData(keyword, field) {
 
 Given(
   "the user sets the pet ID to {string}",
-
   async function (petIdKeyword) {
     if (!this.endpoint) {
       throw new Error(
@@ -72,7 +82,19 @@ Given(
       );
     }
 
-    const resolvedPetId = resolvePetTestData(petIdKeyword, "id");
+    let resolvedPetId;
+
+    if (petIdKeyword === "created pet ID") {
+      if (this.createdPetId === undefined || this.createdPetId === null) {
+        throw new Error(
+          'No created pet ID is available. Run the POST step first and save the created pet ID before using "created pet ID".',
+        );
+      }
+
+      resolvedPetId = this.createdPetId;
+    } else {
+      resolvedPetId = resolvePetTestData(petIdKeyword, "id");
+    }
 
     this.petTestDataKeyword = petIdKeyword;
 
@@ -106,7 +128,6 @@ Given(
 
 Then(
   "verify the response pet ID should match the requested pet ID",
-
   async function () {
     if (!this.responseBody) {
       throw new Error(
@@ -130,7 +151,6 @@ Then(
     assert.equal(
       String(actualPetId),
       String(requestedPetId),
-
       `Expected response pet ID "${requestedPetId}" ` +
         `but received "${actualPetId}".`,
     );
@@ -141,9 +161,9 @@ Then(
 // VERIFY RESPONSE PET NAME
 // =============================================================================
 
+
 Then(
   "verify the response pet name should be {string}",
-
   async function (petNameKeyword) {
     if (!this.responseBody) {
       throw new Error(
@@ -152,19 +172,30 @@ Then(
       );
     }
 
-    const expectedPetName = resolvePetTestData(petNameKeyword, "name");
+    let expectedPetName;
+
+    if (petNameKeyword === "created pet name") {
+      if (!this.createdPet || this.createdPet.name === undefined) {
+        throw new Error(
+          'No created pet name is available. Run the POST step first before using "created pet name".',
+        );
+      }
+
+      expectedPetName = this.createdPet.name;
+    } else {
+      expectedPetName = resolvePetTestData(petNameKeyword, "name");
+    }
 
     const actualPetName = this.responseBody.name;
 
-    assert.equal(
-      actualPetName,
-      expectedPetName,
+    if (actualPetName !== expectedPetName) {
+      throw new Error(
+        `Expected pet name "${expectedPetName}" ` +
+          `but received "${actualPetName}".`,
+      );
+    }
 
-      `Expected pet name "${expectedPetName}" ` +
-        `but received "${actualPetName}".`,
-    );
-
-    console.log("[Pet Name Validation]", {
+    console.log("[Pet Name Validation] Successful", {
       keyword: petNameKeyword,
       expected: expectedPetName,
       actual: actualPetName,
@@ -172,13 +203,14 @@ Then(
   },
 );
 
+
 // =============================================================================
 // VERIFY RESPONSE PET STATUS
 // =============================================================================
 
+
 Then(
   "verify the response pet status should be {string}",
-
   async function (petStatusKeyword) {
     if (!this.responseBody) {
       throw new Error(
@@ -187,19 +219,30 @@ Then(
       );
     }
 
-    const expectedPetStatus = resolvePetTestData(petStatusKeyword, "status");
+    let expectedPetStatus;
+
+    if (petStatusKeyword === "created pet status") {
+      if (!this.createdPet || this.createdPet.status === undefined) {
+        throw new Error(
+          'No created pet status is available. Run the POST step first before using "created pet status".',
+        );
+      }
+
+      expectedPetStatus = this.createdPet.status;
+    } else {
+      expectedPetStatus = resolvePetTestData(petStatusKeyword, "status");
+    }
 
     const actualPetStatus = this.responseBody.status;
 
-    assert.equal(
-      actualPetStatus,
-      expectedPetStatus,
+    if (actualPetStatus !== expectedPetStatus) {
+      throw new Error(
+        `Expected pet status "${expectedPetStatus}" ` +
+          `but received "${actualPetStatus}".`,
+      );
+    }
 
-      `Expected pet status "${expectedPetStatus}" ` +
-        `but received "${actualPetStatus}".`,
-    );
-
-    console.log("[Pet Status Validation]", {
+    console.log("[Pet Status Validation] Successful", {
       keyword: petStatusKeyword,
       expected: expectedPetStatus,
       actual: actualPetStatus,
