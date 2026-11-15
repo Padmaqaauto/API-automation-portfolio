@@ -23,7 +23,7 @@
     "uuid": "^14.0.2"
   },
   "devDependencies": {
-    "@cucumber/html-formatter": "^24.1.1",
+    "@cucumber/html-formatter": "^24.2.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.62.1",
     "@types/node": "^26.4.0",
