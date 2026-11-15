@@ -44,61 +44,80 @@ function loadPetTestData() {
 
 function resolvePetTestData(keyword, field) {
   const testData = loadPetTestData();
-
   return resolveTestDataField(testData, keyword, field);
+}
+
+// =============================================================================
+// GET CREATED PET VALUE
+// =============================================================================
+
+// eslint-disable-next-line no-unused-vars
+function getCreatedPetFieldValue(fieldName) {
+  if (!this.createdPet || !this.createdPet[fieldName]) {
+    return undefined;
+  }
+  return this.createdPet[fieldName];
 }
 
 // =============================================================================
 // SET PET ID
 // =============================================================================
 
-Given(
-  "the user sets the pet ID to {string}",
-
-  async function (petIdKeyword) {
-    if (!this.endpoint) {
-      throw new Error(
-        "Endpoint metadata is not available. " +
-          'Make sure "the user creates a GET request URL and headers with api data" ' +
-          "step ran first.",
-      );
-    }
-
-    if (!this.apiRequestBuilder) {
-      throw new Error(
-        "API request builder is not initialized. " +
-          'Make sure "the user creates a GET request URL and headers with api data" ' +
-          "step ran first.",
-      );
-    }
-
-    const resolvedPetId = resolvePetTestData(petIdKeyword, "id");
-
-    this.petTestDataKeyword = petIdKeyword;
-
-    this.petTestData = {
-      id: resolvedPetId,
-    };
-
-    this.pathParams = {
-      ...this.pathParams,
-      petId: resolvedPetId,
-    };
-
-    this.requestUrl = this.apiRequestBuilder.buildUrl(
-      this.endpoint,
-      this.pathParams,
-      this.queryParams,
+Given("the user sets the pet ID to {string}", async function (petIdKeyword) {
+  if (!this.endpoint) {
+    throw new Error(
+      "Endpoint metadata is not available. " +
+        'Make sure "the user creates a GET request URL and headers with api data" ' +
+        "step ran first.",
     );
+  }
 
-    console.log("[Pet Test Data Resolved]", {
-      keyword: petIdKeyword,
-      field: "id",
-      value: resolvedPetId,
-      requestUrl: this.requestUrl,
-    });
-  },
-);
+  if (!this.apiRequestBuilder) {
+    throw new Error(
+      "API request builder is not initialized. " +
+        'Make sure "the user creates a GET request URL and headers with api data" ' +
+        "step ran first.",
+    );
+  }
+
+  let resolvedPetId;
+
+  if (petIdKeyword === "created pet ID") {
+    if (this.createdPetId === undefined || this.createdPetId === null) {
+      throw new Error(
+        'No created pet ID is available. Run the POST step first and save the created pet ID before using "created pet ID".',
+      );
+    }
+
+    resolvedPetId = this.createdPetId;
+  } else {
+    resolvedPetId = resolvePetTestData(petIdKeyword, "id");
+  }
+
+  this.petTestDataKeyword = petIdKeyword;
+
+  this.petTestData = {
+    id: resolvedPetId,
+  };
+
+  this.pathParams = {
+    ...this.pathParams,
+    petId: resolvedPetId,
+  };
+
+  this.requestUrl = this.apiRequestBuilder.buildUrl(
+    this.endpoint,
+    this.pathParams,
+    this.queryParams,
+  );
+
+  console.log("[Pet Test Data Resolved]", {
+    keyword: petIdKeyword,
+    field: "id",
+    value: resolvedPetId,
+    requestUrl: this.requestUrl,
+  });
+});
 
 // =============================================================================
 // VERIFY RESPONSE PET ID
@@ -106,7 +125,6 @@ Given(
 
 Then(
   "verify the response pet ID should match the requested pet ID",
-
   async function () {
     if (!this.responseBody) {
       throw new Error(
@@ -130,7 +148,6 @@ Then(
     assert.equal(
       String(actualPetId),
       String(requestedPetId),
-
       `Expected response pet ID "${requestedPetId}" ` +
         `but received "${actualPetId}".`,
     );
@@ -143,7 +160,6 @@ Then(
 
 Then(
   "verify the response pet name should be {string}",
-
   async function (petNameKeyword) {
     if (!this.responseBody) {
       throw new Error(
@@ -152,19 +168,30 @@ Then(
       );
     }
 
-    const expectedPetName = resolvePetTestData(petNameKeyword, "name");
+    let expectedPetName;
+
+    if (petNameKeyword === "created pet name") {
+      if (!this.createdPet || this.createdPet.name === undefined) {
+        throw new Error(
+          'No created pet name is available. Run the POST step first before using "created pet name".',
+        );
+      }
+
+      expectedPetName = this.createdPet.name;
+    } else {
+      expectedPetName = resolvePetTestData(petNameKeyword, "name");
+    }
 
     const actualPetName = this.responseBody.name;
 
-    assert.equal(
-      actualPetName,
-      expectedPetName,
+    if (actualPetName !== expectedPetName) {
+      throw new Error(
+        `Expected pet name "${expectedPetName}" ` +
+          `but received "${actualPetName}".`,
+      );
+    }
 
-      `Expected pet name "${expectedPetName}" ` +
-        `but received "${actualPetName}".`,
-    );
-
-    console.log("[Pet Name Validation]", {
+    console.log("[Pet Name Validation] Successful", {
       keyword: petNameKeyword,
       expected: expectedPetName,
       actual: actualPetName,
@@ -178,7 +205,6 @@ Then(
 
 Then(
   "verify the response pet status should be {string}",
-
   async function (petStatusKeyword) {
     if (!this.responseBody) {
       throw new Error(
@@ -187,19 +213,30 @@ Then(
       );
     }
 
-    const expectedPetStatus = resolvePetTestData(petStatusKeyword, "status");
+    let expectedPetStatus;
+
+    if (petStatusKeyword === "created pet status") {
+      if (!this.createdPet || this.createdPet.status === undefined) {
+        throw new Error(
+          'No created pet status is available. Run the POST step first before using "created pet status".',
+        );
+      }
+
+      expectedPetStatus = this.createdPet.status;
+    } else {
+      expectedPetStatus = resolvePetTestData(petStatusKeyword, "status");
+    }
 
     const actualPetStatus = this.responseBody.status;
 
-    assert.equal(
-      actualPetStatus,
-      expectedPetStatus,
+    if (actualPetStatus !== expectedPetStatus) {
+      throw new Error(
+        `Expected pet status "${expectedPetStatus}" ` +
+          `but received "${actualPetStatus}".`,
+      );
+    }
 
-      `Expected pet status "${expectedPetStatus}" ` +
-        `but received "${actualPetStatus}".`,
-    );
-
-    console.log("[Pet Status Validation]", {
+    console.log("[Pet Status Validation] Successful", {
       keyword: petStatusKeyword,
       expected: expectedPetStatus,
       actual: actualPetStatus,
