@@ -31,6 +31,7 @@ jobs:
       API_TIMEOUT: ${{ vars.API_TIMEOUT }}
       API_ENDPOINT_REGISTRY_FILE: ${{ vars.API_ENDPOINT_REGISTRY_FILE }}
       API_TEST_DATA_ROOT: ${{ vars.API_TEST_DATA_ROOT }}
+      API_SCENARIO_DATA_ROOT: ${{ vars.API_SCENARIO_DATA_ROOT }}
 
     steps:
       - name: Checkout repository
