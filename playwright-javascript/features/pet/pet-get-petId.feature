@@ -22,7 +22,6 @@ Feature: Find pet by ID
       | pet-get-petId-test-data.json | pending pet ID | 200    | application/json | pet-get-petId-api-schema.json | pending pet ID | pending pet ID |
       | pet-get-petId-test-data.json | sold pet ID    | 200    | application/json | pet-get-petId-api-schema.json | sold pet ID    | sold pet ID    |
 
-
   @API @Pet @petById @GetPetById @Regression @Negative
   Scenario Outline: Get Pet By ID request negative flow with invalid pet ID
 

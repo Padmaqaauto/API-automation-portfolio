@@ -1,0 +1,52 @@
+name: Playwright API Automation
+
+on:
+  push:
+    branches:
+      - main
+      - master
+
+  pull_request:
+    branches:
+      - main
+      - master
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  playwright:
+    name: Run API Automation Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: playwright-javascript
+
+    env:
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      API_VERSION: ${{ vars.API_VERSION }}
+      API_TIMEOUT: ${{ vars.API_TIMEOUT }}
+      API_ENDPOINT_REGISTRY_FILE: ${{ vars.API_ENDPOINT_REGISTRY_FILE }}
+      API_TEST_DATA_ROOT: ${{ vars.API_TEST_DATA_ROOT }}
+      API_SCENARIO_DATA_ROOT: ${{ vars.API_SCENARIO_DATA_ROOT }}
+      API_SCHEMA_ROOT: ${{ vars.API_SCHEMA_ROOT }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: playwright-javascript/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run API automation tests
+        run: npm test
