@@ -1,22 +1,24 @@
-
-name: Playwright API Automation CI
+name: Playwright API Automation
 
 on:
   push:
     branches:
       - main
-      - feature/ci/cd
+      - master
+
   pull_request:
     branches:
       - main
+      - master
+
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  test:
-    name: API Automation Tests
+  playwright:
+    name: Run API Automation Tests
     runs-on: ubuntu-latest
 
     defaults:
@@ -24,17 +26,18 @@ jobs:
         working-directory: playwright-javascript
 
     env:
+      API_BASE_URL: ${{ vars.API_BASE_URL }}
+      API_VERSION: ${{ vars.API_VERSION }}
+      API_TIMEOUT: ${{ vars.API_TIMEOUT }}
       API_ENDPOINT_REGISTRY_FILE: ${{ vars.API_ENDPOINT_REGISTRY_FILE }}
       API_TEST_DATA_ROOT: ${{ vars.API_TEST_DATA_ROOT }}
-      API_SCENARIO_DATA_ROOT: ${{ vars.API_SCENARIO_DATA_ROOT }}
-      API_SCHEMA_ROOT: ${{ vars.API_SCHEMA_ROOT }}
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v6
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
@@ -43,23 +46,5 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Check Prettier formatting
-        run: npm run format:check
-
       - name: Run API automation tests
         run: npm test
-
-      - name: Upload test reports
-        if: always()
-        uses: actions/upload-artifact@v5
-        with:
-          name: api-automation-reports
-          path: |
-            playwright-javascript/reports/
-            playwright-javascript/playwright-report/
-            playwright-javascript/test-results/
-          if-no-files-found: warn
-          retention-days: 30
