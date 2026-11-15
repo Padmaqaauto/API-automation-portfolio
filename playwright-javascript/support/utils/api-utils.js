@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import { ApiRequestBuilderUtils } from "./api-request-builder-utils.js";
 import { ApiRequestUtils } from "./api-request-utils.js";
 import { ApiResponseUtils } from "./api-response-utils.js";
@@ -57,17 +58,17 @@ export class ApiUtils {
     world.requestPayload = resolvedPayload ?? resolvedForm ?? null;
 
     const result = await this.requestUtils.send(
-      World.apiRequestContext,
+      world.apiRequestContext,
       request,
     );
     world.currentResponse = result.response;
-    World.responseBody = result.body;
-    World.sendRuntimeVariable("lastStatus", result.status);
+    world.responseBody = result.body;
+    world.sendRuntimeVariable("lastStatus", result.status);
 
     if (result.body?.id !== undefined)
-      World.sendRuntimeVariable("lastId", result.body.id);
+      world.sendRuntimeVariable("lastId", result.body.id);
     if (result.body?.username !== undefined)
-      World.sendRuntimeVariable("lastUsername", result.body.username);
+      world.sendRuntimeVariable("lastUsername", result.body.username);
     if (typeof result.body === "string" && result.body.includes("logged in")) {
       world.setRuntimeVariable("authMessage", result.body);
     }
