@@ -1,14 +1,19 @@
-import { randomUUID } from "node:crypto";
+import { randomInt, randomUUID } from "node:crypto";
 
-const suffix = () => `${Date.now()}-${Math.floor(Math.random() * 100000)}`;
+const suffix = () => `${Date.now()}-${randomInt(0, 100000)}`;
 
-export const generateUniqueId = () => Number(String(Date.now()).slice(-9));
+export const generateUniqueId = () => randomInt(100000000, 1000000000);
+
 export const generatePetName = () => `pet-${suffix()}`;
+
 export const generateUsername = () => `user-${suffix()}`;
+
 export const generateEmail = () => `${generateUsername()}@example.com`;
-export const generateOrderId = () =>
-  Math.max(1, Number(String(Date.now()).slice(-8)) % 10);
+
+export const generateOrderId = () => randomInt(1, 11);
+
 export const generateTimestamp = () => new Date().toISOString();
+
 export const generateCorrelationId = () => randomUUID();
 
 export const generateValue = (type) =>
