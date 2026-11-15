@@ -18,7 +18,6 @@ export const generateCorrelationId = () => randomUUID();
 
 export const generateValue = (type) =>
   ({
-    
     id: generateUniqueId(),
     petId: generateUniqueId(),
     orderId: generateOrderId(),
