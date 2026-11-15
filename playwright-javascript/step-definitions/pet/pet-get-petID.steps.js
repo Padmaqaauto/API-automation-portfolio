@@ -32,7 +32,8 @@ function loadPetTestData() {
   } catch (error) {
     throw new Error(
       `Unable to parse pet test-data file: ${petTestDataFile}. ` +
-        `Error: ${error.message}`, { cause: error },
+        `Error: ${error.message}`,
+      { cause: error },
     );
   }
 }

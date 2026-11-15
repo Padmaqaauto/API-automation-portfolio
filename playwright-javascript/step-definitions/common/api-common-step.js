@@ -53,7 +53,8 @@ function readJsonFile(filePath) {
     return JSON.parse(fs.readFileSync(filePath, "utf-8"));
   } catch (error) {
     throw new Error(
-      `Unable to parse JSON file "${filePath}". ` + `Reason: ${error.message}`, { cause: error },
+      `Unable to parse JSON file "${filePath}". ` + `Reason: ${error.message}`,
+      { cause: error },
     );
   }
 }
@@ -174,7 +175,6 @@ function findEndpointByScenarioTags(registry, pickle) {
 
   return null;
 }
-
 
 function normalizeTag(tag) {
   return String(tag).replace(/^@/, "").trim();
