@@ -1,0 +1,15 @@
+{
+    "petById": {
+        "url": "/pet/{petId}",
+        "method": "GET",
+        "version": "v2",
+        "headers": {
+            "Accept": "static:application/json"
+        },
+        "pathParams": {
+            "petId": "valuefromexampletable"
+        },
+        "queryParams": {},
+        "requestBody": null
+    }
+}
