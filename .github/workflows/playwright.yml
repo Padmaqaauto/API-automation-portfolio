@@ -8,7 +8,7 @@ on:
     branches: [main, master]
 
   schedule:
-    - cron: '0 6 * * *'
+    - cron: "0 6 * * *"
 
   workflow_dispatch:
 
@@ -39,8 +39,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Run Playwright API tests
-        run: npx playwright test
+      - name: Run API Automation Tests
+        run: npm test
 
       - name: Upload Playwright HTML report
         if: always()

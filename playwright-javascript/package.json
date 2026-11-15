@@ -6,7 +6,11 @@
   "scripts": {
     "test": "node run-tests.js",
     "cucumber": "cucumber-js",
-    "report": "node generateReport.js"
+    "report": "node generateReport.js",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "keywords": [],
   "author": "",

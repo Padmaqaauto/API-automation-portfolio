@@ -3,15 +3,17 @@ export function assert(condition, message) {
 }
 
 export function isObject(value) {
-  return value !== null && typeof value === 'object' && !Array.isArray(value);
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
 export function redactSecrets(value) {
-  const clone = typeof value === 'object' ? JSON.parse(JSON.stringify(value)) : value;
+  const clone =
+    typeof value === "object" ? JSON.parse(JSON.stringify(value)) : value;
   const redact = (node) => {
-    if (!node || typeof node !== 'object') return;
+    if (!node || typeof node !== "object") return;
     for (const key of Object.keys(node)) {
-      if (/password|token|authorization|api[_-]?key/i.test(key)) node[key] = '[REDACTED]';
+      if (/password|token|authorization|api[_-]?key/i.test(key))
+        node[key] = "[REDACTED]";
       else redact(node[key]);
     }
   };
