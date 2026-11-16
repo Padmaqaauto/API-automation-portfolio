@@ -1,28 +1,109 @@
 {
-  "valid pet ID": {
-    "id": 234508,
-    "name": "TestPet_XML",
+  "availablePet": {
+    "id": 1001,
+    "category": {
+      "id": 1,
+      "name": "Dogs"
+    },
+    "name": "AvailableTestPet",
+    "photoUrls": ["https://example.com/available-pet.jpg"],
     "status": "available"
   },
+
+  "pendingPet": {
+    "id": 1002,
+    "category": {
+      "id": 1,
+      "name": "Dogs"
+    },
+    "name": "PendingTestPet",
+    "photoUrls": ["https://example.com/pending-pet.jpg"],
+    "status": "pending"
+  },
+
+  "soldPet": {
+    "id": 1003,
+    "category": {
+      "id": 1,
+      "name": "Dogs"
+    },
+    "name": "SoldTestPet",
+    "photoUrls": ["https://example.com/sold-pet.jpg"],
+    "status": "sold"
+  },
+
+  "updatedAvailableToPending": {
+    "name": "UpdatedAvailablePet",
+    "status": "pending"
+  },
+
+  "updatedPendingToAvailable": {
+    "name": "UpdatedPendingPet",
+    "status": "available"
+  },
+
+  "updatedPendingToSold": {
+    "name": "UpdatedPendingSoldPet",
+    "status": "sold"
+  },
+
+  "updatedSoldToAvailable": {
+    "name": "UpdatedSoldPet",
+    "status": "available"
+  },
+
+  "updatedSoldToPending": {
+    "name": "UpdatedSoldPendingPet",
+    "status": "pending"
+  },
+
+  "updatedAvailableToSold": {
+    "name": "UpdatedAvailableSoldPet",
+    "status": "sold"
+  },
+
+  "updatedNameOnly": {
+    "name": "UpdatedNameOnlyPet"
+  },
+
+  "updatedStatusOnly": {
+    "status": "sold"
+  },
+
+  "invalidStatus": {
+    "name": "InvalidStatusPet",
+    "status": "unknown"
+  },
+
+  "updatedValidPet": {
+    "name": "TestPet_XML",
+    "status": "pending"
+  },
+
   "pending pet ID": {
     "id": 54297730,
     "name": "doggie",
     "status": "pending"
   },
+
   "sold pet ID": {
     "id": 2022000,
     "name": "Star",
     "status": "sold"
   },
+
   "invalid pet ID": {
     "id": 999999999
   },
+
   "non-existing pet ID": {
     "id": 0
   },
+
   "negative pet ID": {
     "id": -1
   },
+
   "non-numeric pet ID": {
     "id": "abc"
   }

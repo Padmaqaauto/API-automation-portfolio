@@ -859,6 +859,25 @@ async function sendRequest(world, method, requestOptions) {
   return requestFunction(world.requestContext, requestOptions);
 }
 
+// Resolve a named keyword from the scenario-data JSON files.
+function findScenarioKeyword(keyword, scenarioFiles, variables, options) {
+  for (const file of scenarioFiles) {
+    try {
+      return resolveScenarioData(
+        readJsonFile(file),
+        keyword,
+        variables,
+        options,
+      );
+    } catch {
+      // Continue searching the other scenario-data files.
+    }
+  }
+
+  throw new Error(
+    `Test-data keyword "${keyword}" was not found under "${scenarioDataRoot}".`,
+  );
+}
 /* =========================================================
    GET / POST / PUT / PATCH / DELETE
    REQUEST PREPARATION
@@ -1463,5 +1482,437 @@ Then(
         `Response body does not match schema "${schemaName}":\n${errorDetails}`,
       );
     }
+  },
+);
+
+Then(
+  "the user creates a POST request URL and headers with api data {string} and the stored pet ID and form data",
+  async function (apiData, dataTable) {
+    const petId = this.createdPetId ?? this.createdPet?.id;
+
+    if (petId === undefined || petId === null) {
+      throw new Error(
+        "No stored pet ID is available. Create a pet and save its details before preparing the update request.",
+      );
+    }
+
+    if (!dataTable || dataTable.hashes().length === 0) {
+      throw new Error("The form-data DataTable cannot be empty.");
+    }
+
+    // Load the operation configuration, e.g. pet-post-petId-test-data.json.
+    const apiDataFile = resolveTestDataFile(apiData);
+    const apiDataJson = readJsonFile(apiDataFile);
+
+    let scenarioData;
+
+    if (apiDataJson.request || apiDataJson.url || apiDataJson.path) {
+      scenarioData = apiDataJson;
+    } else {
+      const firstValue = Object.values(apiDataJson)[0];
+
+      if (!firstValue || typeof firstValue !== "object") {
+        throw new Error(`No API request definition was found in "${apiData}".`);
+      }
+
+      scenarioData = firstValue;
+    }
+
+    const request = scenarioData.request ?? scenarioData;
+    const requestPath = request.url ?? request.path;
+    const requestMethod = String(request.method ?? "POST").toUpperCase();
+    const requestVersion = request.version ?? process.env.API_VERSION;
+
+    if (!requestPath) {
+      throw new Error(`API path/url is missing in "${apiData}".`);
+    }
+
+    if (!requestVersion) {
+      throw new Error(`API version is missing in "${apiData}".`);
+    }
+
+    assert.equal(
+      requestMethod,
+      "POST",
+      `Expected a POST operation in "${apiData}", received "${requestMethod}".`,
+    );
+
+    const endpointKey = await resolveEndpointKey(
+      this,
+      requestPath,
+      requestMethod,
+      requestVersion,
+    );
+
+    const registry = await loadEndpointRegistry();
+    const endpoints = registry.endpoints ?? registry;
+    const endpoint = endpoints[endpointKey];
+
+    if (!endpoint) {
+      throw new Error(`Endpoint metadata not found for "${endpointKey}".`);
+    }
+
+    this.endpointKey = endpointKey;
+    this.endpoint = endpoint;
+
+    if (!this.apiRequestBuilder) {
+      this.apiRequestBuilder = new ApiRequestBuilderUtils(endpoints);
+    }
+
+    this.variables = {
+      ...(this.variables ?? {}),
+      ...(this.exampleVariables ?? {}),
+    };
+
+    const resolutionOptions = { missingPlaceholderValue: null };
+    const requestData = buildRequestData(
+      scenarioData,
+      endpoint,
+      this.variables,
+      resolutionOptions,
+    );
+
+    this.pathParams = {
+      ...requestData.pathParams,
+      petId,
+    };
+    this.queryParams = requestData.queryParams;
+
+    const scenarioRoot = path.resolve(process.cwd(), scenarioDataRoot);
+    const scenarioFiles = findJsonFiles(scenarioRoot);
+
+    if (scenarioFiles.length === 0) {
+      throw new Error(
+        `No scenario test-data JSON files were found under "${scenarioRoot}".`,
+      );
+    }
+
+    const keywordCache = new Map();
+    const formData = new URLSearchParams();
+
+    for (const row of dataTable.hashes()) {
+      const field = row.field?.trim();
+      const keyword = row.value?.trim();
+
+      if (!field || !keyword) {
+        throw new Error(
+          "Each form-data row must include a field and a test-data keyword.",
+        );
+      }
+
+      let keywordData = keywordCache.get(keyword);
+
+      if (!keywordData) {
+        keywordData = findScenarioKeyword(
+          keyword,
+          scenarioFiles,
+          this.variables,
+          resolutionOptions,
+        );
+        keywordCache.set(keyword, keywordData);
+      }
+
+      const value = getNestedValue(keywordData, field);
+
+      if (value === undefined || value === null) {
+        throw new Error(
+          `Keyword "${keyword}" does not provide a value for form field "${field}".`,
+        );
+      }
+
+      formData.set(field, String(value));
+    }
+
+    this.requestUrl = buildRequestUrl(
+      this,
+      endpoint,
+      this.pathParams,
+      this.queryParams,
+    );
+    this.requestMethod = "POST";
+    this.requestHeaders = this.apiRequestBuilder.buildHeaders({
+      contentType: "application/x-www-form-urlencoded",
+      headers: requestData.headers,
+    });
+    this.requestPayload = formData.toString();
+    this.apiData = apiData;
+    this.scenarioData = scenarioData;
+    this.resolutionOptions = resolutionOptions;
+
+    console.log("[Pet Update Request Prepared]", {
+      endpointKey,
+      method: this.requestMethod,
+      url: this.requestUrl,
+      petId,
+      formFields: [...formData.keys()],
+    });
+  },
+);
+
+Then(
+  "the user retrieves the updated pet using GET request with the stored pet ID",
+  async function () {
+    const petId = this.createdPetId ?? this.createdPet?.id;
+
+    if (petId === undefined || petId === null) {
+      throw new Error(
+        "No stored pet ID is available. Create a pet and save its details before retrieving it.",
+      );
+    }
+
+    const registry = await loadEndpointRegistry();
+    const endpoints = registry.endpoints ?? registry;
+
+    const endpointEntry = Object.entries(endpoints).find(
+      ([, candidate]) =>
+        (candidate.path ?? candidate.basePath) === "/pet/{petId}" &&
+        String(candidate.method).toUpperCase() === "GET",
+    );
+
+    if (!endpointEntry) {
+      throw new Error(
+        'GET endpoint "/pet/{petId}" was not found in the endpoint registry.',
+      );
+    }
+
+    const [endpointKey, endpoint] = endpointEntry;
+
+    if (!this.apiRequestBuilder) {
+      this.apiRequestBuilder = new ApiRequestBuilderUtils(endpoints);
+    }
+
+    const requestContext =
+      this.apiRequestContext ?? this.requestContext ?? this.apiContext;
+
+    if (!requestContext) {
+      throw new Error("Playwright APIRequestContext is not initialized.");
+    }
+
+    this.endpointKey = endpointKey;
+    this.endpoint = endpoint;
+    this.pathParams = {
+      ...(this.pathParams ?? {}),
+      petId,
+    };
+    this.queryParams = {};
+    this.requestUrl = buildRequestUrl(
+      this,
+      endpoint,
+      this.pathParams,
+      this.queryParams,
+    );
+    this.requestMethod = "GET";
+    this.requestHeaders = this.apiRequestBuilder.buildHeaders({
+      headers: { Accept: "application/json" },
+    });
+    this.requestPayload = null;
+
+    if (!this.apiRequestUtils) {
+      throw new Error("API request utilities are not initialized.");
+    }
+
+    this.apiResult = await this.apiRequestUtils.send(requestContext, {
+      method: "GET",
+      url: this.requestUrl,
+      headers: this.requestHeaders,
+    });
+
+    this.response = this.apiResult.response;
+    this.responseBody =
+      this.apiResult.body ?? this.apiResult.responseBody ?? this.apiResult.data;
+
+    console.log("[Updated Pet Retrieved]", {
+      endpointKey,
+      url: this.requestUrl,
+      petId,
+    });
+  },
+);
+
+Given(
+  "the user creates a POST request URL and headers with api data {string} with invalid path parameter",
+  async function (apiData) {
+    const apiDataFile = resolveTestDataFile(apiData);
+    const apiDataJson = readJsonFile(apiDataFile);
+
+    let scenarioData;
+
+    if (apiDataJson.request || apiDataJson.url || apiDataJson.path) {
+      scenarioData = apiDataJson;
+    } else {
+      const firstKey = Object.keys(apiDataJson)[0];
+      scenarioData = apiDataJson[firstKey];
+    }
+
+    if (!scenarioData || typeof scenarioData !== "object") {
+      throw new Error(`No API request definition was found in "${apiData}".`);
+    }
+
+    const request = scenarioData.request ?? scenarioData;
+    const requestPath = request.url ?? request.path;
+    const requestMethod = String(request.method ?? "POST").toUpperCase();
+    const requestVersion = request.version ?? process.env.API_VERSION;
+
+    if (!requestPath) {
+      throw new Error(`API path/url is missing in "${apiData}".`);
+    }
+
+    if (!requestVersion) {
+      throw new Error(`API version is missing in "${apiData}".`);
+    }
+
+    assert.equal(
+      requestMethod,
+      "POST",
+      `Expected a POST operation in "${apiData}", received "${requestMethod}".`,
+    );
+
+    const endpointKey = await resolveEndpointKey(
+      this,
+      requestPath,
+      requestMethod,
+      requestVersion,
+    );
+
+    const registry = await loadEndpointRegistry();
+    const endpoints = registry.endpoints ?? registry;
+    const endpoint = endpoints[endpointKey];
+
+    if (!endpoint) {
+      throw new Error(`Endpoint metadata not found for "${endpointKey}".`);
+    }
+
+    this.endpointKey = endpointKey;
+    this.endpoint = endpoint;
+
+    if (!this.apiRequestBuilder) {
+      this.apiRequestBuilder = new ApiRequestBuilderUtils(endpoints);
+    }
+
+    this.variables = {
+      ...(this.variables ?? {}),
+      ...(this.exampleVariables ?? {}),
+    };
+
+    const requestData = buildRequestData(
+      scenarioData,
+      endpoint,
+      this.variables,
+      { missingPlaceholderValue: null },
+    );
+
+    // This step intentionally defers URL construction until the stored pet ID
+    // is added by the following form-data step.
+    this.pathParams = {};
+    this.queryParams = requestData.queryParams;
+    this.requestUrl = null;
+    this.requestMethod = "POST";
+    this.requestHeaders = this.apiRequestBuilder.buildHeaders({
+      contentType: "application/x-www-form-urlencoded",
+      headers: requestData.headers,
+    });
+
+    this.petUpdateRequest = {
+      apiData,
+      scenarioData,
+      requestData,
+    };
+  },
+);
+
+Given(
+  "the user provides valid update form data using key {string} and {string}",
+  async function (updatedPetNameKeyword, updatedStatusKeyword) {
+    if (!this.petUpdateRequest || !this.endpoint) {
+      throw new Error(
+        'Update API data is not prepared. Run the "creates a POST request URL and headers ... without path parameter" step first.',
+      );
+    }
+
+    const petId = this.createdPetId ?? this.createdPet?.id;
+
+    if (petId === undefined || petId === null) {
+      this.petId = null;
+    }
+
+    const scenarioRoot = path.resolve(process.cwd(), scenarioDataRoot);
+    const scenarioFiles = findJsonFiles(scenarioRoot);
+
+    if (scenarioFiles.length === 0) {
+      throw new Error(
+        `No scenario test-data JSON files were found under "${scenarioRoot}".`,
+      );
+    }
+
+    const resolutionOptions = { missingPlaceholderValue: null };
+
+    function resolveUpdateKeyword(keyword, field) {
+      for (const file of scenarioFiles) {
+        try {
+          const scenarioTestData = readJsonFile(file);
+          const keywordData = resolveScenarioData(
+            scenarioTestData,
+            keyword,
+            this.variables,
+            resolutionOptions,
+          );
+
+          const value = getNestedValue(keywordData, field);
+
+          if (value === undefined || value === null) {
+            throw new Error(
+              `Keyword "${keyword}" has no value for field "${field}".`,
+            );
+          }
+
+          return value;
+        } catch {
+          // Search the next scenario-data file for this keyword.
+        }
+      }
+
+      throw new Error(
+        `Could not resolve field "${field}" for test-data keyword "${keyword}" under "${scenarioRoot}".`,
+      );
+    }
+
+    const updatedName = resolveUpdateKeyword.call(
+      this,
+      updatedPetNameKeyword,
+      "name",
+    );
+    const updatedStatus = resolveUpdateKeyword.call(
+      this,
+      updatedStatusKeyword,
+      "status",
+    );
+
+    this.pathParams = {
+      ...this.petUpdateRequest.requestData.pathParams,
+      petId,
+    };
+    this.queryParams = this.petUpdateRequest.requestData.queryParams;
+
+    this.requestUrl = buildRequestUrl(
+      this,
+      this.endpoint,
+      this.pathParams,
+      this.queryParams,
+    );
+
+    const formData = new URLSearchParams();
+    formData.set("name", String(updatedName));
+    formData.set("status", String(updatedStatus));
+
+    this.requestMethod = "POST";
+    this.requestPayload = formData.toString();
+    this.apiData = this.petUpdateRequest.apiData;
+
+    console.log("[Pet Update Request Prepared]", {
+      endpointKey: this.endpointKey,
+      url: this.requestUrl,
+      petId,
+      formFields: ["name", "status"],
+    });
   },
 );
