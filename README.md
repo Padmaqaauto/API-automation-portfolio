@@ -1,517 +1,367 @@
-# 🚀 API Automation Portfolio
+# 🧪 API Automation Portfolio
 
-A professional **API test automation portfolio** demonstrating REST API testing using **Playwright APIRequestContext, JavaScript, Cucumber BDD, OpenAPI/Swagger, JSON Schema validation, and reusable automation components**.
+A maintainable **REST API test automation framework** built with **Playwright APIRequestContext, JavaScript, Cucumber BDD, and AJV JSON Schema validation**. The project uses the [Swagger Petstore API](https://petstore.swagger.io/) to demonstrate API test design, reusable automation components, data-driven scenarios, and pull-request quality checks with GitHub Actions.
 
-This repository demonstrates practical QA automation skills including functional testing, positive and negative testing, request and response validation, data-driven testing, API contract validation, and maintainable automation framework design.
-
----
-
-## 📑 Table of Contents
-
-* [📌 Project Overview](#-project-overview)
-* [🛠️ Technology Stack](#️-technology-stack)
-* [🧪 API Testing Coverage](#-api-testing-coverage)
-* [🌐 API Under Test](#-api-under-test)
-* [🥒 BDD Test Design](#-bdd-test-design)
-* [🏗️ Framework Architecture](#️-framework-architecture)
-* [📂 Project Structure](#-project-structure)
-* [📊 Test Data Management](#-test-data-management)
-* [🔍 Response Validation](#-response-validation)
-* [🐞 Negative Testing & Defect Investigation](#-negative-testing--defect-investigation)
-* [▶️ Running the Tests](#️-running-the-tests)
-* [⚙️ Environment Configuration](#️-environment-configuration)
-* [📈 Test Reporting](#-test-reporting)
-* [🗺️ Roadmap](#️-roadmap)
-* [💼 QA Engineering Skills Demonstrated](#-qa-engineering-skills-demonstrated)
-* [🎯 Project Goals](#-project-goals)
-* [👩‍💻 About](#-about)
+The portfolio covers the automation lifecycle: designing scenarios, preparing requests, validating responses, investigating failures, and running repeatable checks in CI.
 
 ---
 
-## 📌 Project Overview
+## 📚 Contents
 
-This project focuses on building a **maintainable and scalable API automation framework** for testing RESTful APIs.
-
-The framework uses **Cucumber BDD** for readable test scenarios, **Playwright APIRequestContext** for API communication, externalized JSON test data, centralized endpoint configuration, and **JSON Schema validation** for response verification.
-
-### ✨ Key Highlights
-
-* 🌐 REST API automation
-* 🥒 Cucumber BDD with Gherkin
-* 🎭 Playwright APIRequestContext
-* 🟨 JavaScript / Node.js
-* 📊 Data-driven testing
-* ✅ Positive testing
-* ❌ Negative testing
-* 📤 Request validation
-* 📥 Response validation
-* 📋 JSON Schema validation
-* 📖 OpenAPI / Swagger integration
-* ♻️ Reusable common API steps
-* 🔗 Centralized endpoint configuration
-* ⚙️ Environment-based configuration
-* 📈 Test reporting
+- [Project overview](#-project-overview)
+- [API under test and coverage](#-api-under-test-and-coverage)
+- [Technology stack](#-technology-stack)
+- [Framework workflow](#-framework-workflow)
+- [Project structure](#-project-structure)
+- [File mapping and naming convention](#-file-mapping-and-naming-convention)
+- [Test data management](#-test-data-management)
+- [Test execution](#-test-execution)
+- [Validation strategy](#-validation-strategy)
+- [GitHub Actions checks](#-github-actions-checks)
+- [Reports](#-reports)
+- [Implementation checklist](#-implementation-checklist)
+- [QA automation value](#-qa-automation-value)
 
 ---
 
-## 🛠️ Technology Stack
+## 🎯 Project overview
 
-| 🧰 Technology                   | 🎯 Purpose                       |
-| ------------------------------- | -------------------------------- |
-| 🟨 JavaScript                   | Test automation development      |
-| 🟢 Node.js                      | Runtime environment              |
-| 🎭 Playwright                   | API automation                   |
-| 🔌 Playwright APIRequestContext | HTTP/API requests                |
-| 🥒 Cucumber JS                  | BDD test execution               |
-| 📝 Gherkin                      | Business-readable test scenarios |
-| 📖 OpenAPI / Swagger            | API specification                |
-| 🔎 AJV                          | JSON Schema validation           |
-| 📄 JSON                         | Test data and configuration      |
-| 🔧 Git                          | Version control                  |
-| 🐙 GitHub                       | Source code management           |
+The goal is to build a reusable API automation framework in which **test scenarios, step definitions, endpoint configuration, request data, and response schemas are separated**. This separation makes the suite easier to read, extend, debug, and maintain as additional API resources and operations are added.
 
----
+### Key capabilities
 
-## 🧪 API Testing Coverage
+- REST API testing with Playwright `APIRequestContext`.
+- BDD scenarios written in Gherkin and executed by Cucumber-JS.
+- Positive, negative, data-driven, and request-to-request integration testing.
+- Reusable common steps and shared request/response utilities.
+- Centralised endpoint configuration and environment settings.
+- HTTP status, header, payload, and AJV schema validation.
+- Cucumber HTML reporting and pull-request checks through GitHub Actions.
 
-The framework is designed to cover different aspects of API testing.
+## 🌐 API under test and coverage
 
-### 🔹 Functional Testing
+**System under test:** [Swagger Petstore](https://petstore.swagger.io/)  
+**Base URL:** `https://petstore.swagger.io/v2`
 
-* Endpoint validation
-* HTTP method validation
-* Request payload validation
-* Response validation
-* HTTP status-code validation
+| Method | Endpoint | Current testing focus |
+|---|---|---|
+| `POST` | `/pet` | Create a pet; valid and invalid request data; request and response validation |
+| `GET` | `/pet/{petId}` | Retrieve by ID; valid, invalid, missing, negative, and non-numeric IDs; POST-to-GET integration |
+| `GET` | `/pet/findByStatus` | Query-parameter testing for pet status |
 
-### ✅ Positive Testing
+`PUT` and `DELETE` operations are planned; they are not part of the completed coverage listed above.
 
-* Valid request data
-* Expected successful responses
-* Valid response structure
-* Expected business data
+## 🧰 Technology stack
 
-### ❌ Negative Testing
-
-* Missing required fields
-* Invalid field values
-* Invalid data types
-* Invalid request payloads
-* Unexpected API responses
-
-### 📊 Data-Driven Testing
-
-* External JSON test data
-* Scenario Outlines
-* Multiple test-data variations
-* Reusable test scenarios
-
-### 📋 Contract / Schema Testing
-
-* JSON Schema validation
-* Response structure validation
-* Data-type validation
-* Required-field validation
+| Technology | Role in this project |
+|---|---|
+| JavaScript and Node.js | Automation language and runtime |
+| npm | Dependency and script management |
+| Playwright `APIRequestContext` | Sends HTTP requests and receives API responses |
+| Cucumber-JS and Gherkin | BDD scenario definition and execution |
+| AJV | Validates response bodies against JSON Schemas |
+| JSON | Endpoint configuration, request fixtures, and schemas |
+| ESLint and Prettier | Code-quality and formatting checks |
+| Git and GitHub | Version control, branches, and pull requests |
+| GitHub Actions | Runs automated pull-request checks |
+| CodeQL | Static analysis for potential security issues in JavaScript |
 
 ---
 
-## 🌐 API Under Test
+## 🔄 Framework workflow
 
-The current automation uses the **Swagger Petstore API** as the system under test.
+The following diagram shows how a scenario is executed by the framework, from the feature file to the API response and report.
 
-### 🔗 Base URL
+```mermaid
+flowchart TD
+    A[Gherkin feature] --> B[Cucumber scenario]
+    B --> C[Step definition]
+    C --> D[Reusable common API steps]
+    D --> E[Request builder and API utilities]
+    E --> F[Playwright APIRequestContext]
+    F --> G[Swagger Petstore API]
+    G --> H[Response validation]
+    H --> I[Cucumber HTML report]
 
-```text
-https://petstore.swagger.io/v2
+    J[Endpoint configuration] --> E
+    K[Environment configuration] --> E
+    L[Request test data] --> E
+    M[Path and query parameters] --> E
+    N[AJV JSON Schema] --> H
 ```
 
-### 📍 Current API Areas
+The feature describes **what** to test. Step definitions connect Gherkin phrases to JavaScript code. Shared utilities prepare and send the request, while response validation checks the API result against expected values and schemas.
 
-| 🔧 HTTP Method | 🌐 API Area        | 🧪 Testing Focus                |
-| -------------- | ------------------ | ------------------------------- |
-| `GET`          | Pet by ID          | Request and response validation |
-| `GET`          | Find Pet by Status | Query parameter testing         |
-| `POST`         | Create Pet         | Positive and negative testing   |
+## 🗂️ Project structure
 
-> 🚧 API coverage will be expanded as the project progresses.
-
----
-
-## 🥒 BDD Test Design
-
-Test scenarios are written using **Gherkin syntax** to make API behavior easy to understand and maintain.
-
-### 📝 Example
-
-```gherkin
-Feature: Create Pet
-
-  @API @Pet @PostPet @Regression @Positive
-  Scenario Outline: Create a pet using test data
-
-    Given I prepare the request using "<testData>"
-    When I send a POST request to the pet endpoint
-    Then the response status should be successful
-    And the response should match the expected pet details
-
-    Examples:
-      | testData    |
-      | valid pet   |
-      | pending pet |
-      | sold pet    |
-```
-
-The framework separates **test logic from test data**, keeping feature files readable and reusable.
-
----
-
-## 🏗️ Framework Architecture
-
-```text
-📄 Feature File
-      │
-      ▼
-🥒 Cucumber Scenario
-      │
-      ▼
-🔹 Step Definitions
-      │
-      ▼
-♻️ Common API Steps
-      │
-      ▼
-🔧 Request Builder / API Client
-      │
-      ├── 🔗 Endpoint Registry
-      ├── 📊 Test Data
-      ├── 📍 Path Parameters
-      ├── 🔎 Query Parameters
-      └── ⚙️ Environment Configuration
-      │
-      ▼
-🎭 Playwright APIRequestContext
-      │
-      ▼
-🌐 REST API
-      │
-      ▼
-🔍 Response Validation
-      │
-      ├── HTTP Status Code
-      ├── Response Body
-      ├── Expected Data
-      └── 📋 JSON Schema
-      │
-      ▼
-📈 Test Report
-```
-
----
-
-## 📂 Project Structure
+The repository contains the automation project in `playwright-javascript/`. Folders are grouped by responsibility so that scenarios, implementation code, test data, and configuration are not mixed together.
 
 ```text
 API-automation-portfolio/
+├── .github/
+│   └── workflows/                   # GitHub Actions workflow definitions
 │
-├── 🎭 playwright-javascript/
-│   │
-│   ├── 📄 features/
-│   │   └── 🐾 pet/
-│   │
-│   ├── 🔹 step-definitions/
-│   │
-│   ├── 📦 page-objects/
-│   │   └── 📊 data/
-│   │
-│   ├── 📊 test-data/
-│   │   └── 🐾 pet/
-│   │
-│   ├── 📋 schemas/
-│   │
-│   ├── 🔧 helpers/
-│   │   └── apiClient.js
-│   │
-│   ├── 🛠️ utils/
-│   │   └── api-request-builder-utils.js
-│   │
-│   ├── ⚙️ cucumber.js
-│   ├── 📦 package.json
-│   └── ▶️ run-tests.js
+└── playwright-javascript/
+    ├── config/                      # Environment and Playwright configuration
+    ├── features/
+    │   └── pet/                     # Gherkin features grouped by API resource
+    ├── step-definitions/
+    │   ├── common/                  # Reusable Cucumber steps
+    │   └── pet/                     # Pet-specific step definitions
+    ├── page-objects/
+    │   ├── data/
+    │   │   └── pet/                 # API operation data and response schemas
+    │   └── pages/
+    │       └── pet/                 # Pet-specific validation/helper logic
+    ├── test-data/
+    │   └── pet/                     # Request fixtures and named data variations
+    ├── helpers/                     # Shared helpers, including API client/report helpers
+    ├── support/
+    │   ├── env/                     # Environment setup
+    │   ├── utils/                   # Request, response, data, schema, and report utilities
+    │   ├── hook.js                  # Cucumber hooks
+    │   └── world.js                 # Scenario-level context
+    ├── reports/                     # Generated reports (when present)
+    ├── cucumber.js                  # Cucumber configuration
+    ├── playwright.config.js         # Playwright configuration
+    ├── run-tests.js                 # Test runner and tag handling
+    ├── generateReport.js            # HTML report generation
+    ├── package.json                 # Dependencies and npm scripts
+    └── package-lock.json            # Locked dependency versions
+```
 
+### Why this structure?
 
----
+| Location | Responsibility |
+|---|---|
+| `features/` | Readable scenarios grouped by resource and operation |
+| `step-definitions/` | Gherkin-to-JavaScript implementation; common and resource-specific steps are separated |
+| `page-objects/data/` | API operation configuration and response schemas |
+| `page-objects/pages/` | Resource-specific helper and validation logic |
+| `test-data/` | External request fixtures and named test-data variations |
+| `helpers/` and `support/utils/` | Shared technical functions to reduce duplicated code |
+| `support/world.js` | Scenario context, including request/response state and created-pet details |
+| `.github/workflows/` | CI workflow definitions for pull-request checks |
 
-## 📊 Test Data Management
+## 🧭 File mapping and naming convention
 
-Test data is maintained separately from the Gherkin feature files.
+Use the same resource and operation name across related files. This makes it easier for a developer or tester to navigate from a scenario to its step implementation and supporting data.
 
-### ✨ Benefits
+### Example: GET pet by ID
 
-* ♻️ Reusable test data
-* 🚫 Reduced hardcoded values
-* 📊 Supports data-driven testing
-* 📝 Cleaner feature files
-* 🔄 Easier maintenance
-* 🔀 Separation of test logic and test data
+| Item | Example path | Purpose |
+|---|---|---|
+| Feature | `features/pet/pet-get-petId.feature` | Defines the scenarios and examples |
+| Step definition | `step-definitions/pet/pet-get-petId.steps.js` | Implements the steps used by the feature |
+| API operation data | `page-objects/data/pet/pet-get-petId-test-data.json` | Supplies endpoint/request configuration used by the request builder |
+| Response schema | `page-objects/data/pet/pet-get-petId-api-schema.json` | Defines the expected response structure and types |
+| Request fixture | `test-data/pet/pet-test-data.json` or the relevant resource fixture | Supplies named test values used by the scenario |
 
-### 📁 Example Test Data
+### How the files relate
+
+```mermaid
+flowchart LR
+    A[Feature file] --> B[Step definition]
+    B --> C[Common steps and page helpers]
+    C --> D[API operation data]
+    C --> E[Request fixture]
+    C --> F[Response schema]
+    D --> G[Request builder]
+    E --> G
+    G --> H[API request]
+    H --> I[Response validation]
+    F --> I
+```
+
+### Naming pattern for a new operation
+
+Replace `<resource>` and `<operation>` with the resource and action name:
 
 ```text
-valid pet
-pending pet
-sold pet
-missing id pet
-missing name pet
-invalid status pet
-invalid type pet
+features/<resource>/<resource>-<operation>.feature
+step-definitions/<resource>/<resource>-<operation>.steps.js
+page-objects/data/<resource>/<resource>-<operation>-test-data.json
+page-objects/data/<resource>/<resource>-<operation>-api-schema.json
 ```
 
----
-
-## 🔍 Response Validation
-
-The framework validates API responses at multiple levels.
-
-### 🌐 HTTP Validation
-
-* HTTP status code
-* HTTP method
-* Response headers
-
-### 📥 Response Body Validation
-
-* Expected field values
-* Required fields
-* Data types
-* Nested objects
-* Arrays
-* Expected API data
-
-### 📋 JSON Schema Validation
-
-**AJV** is used for JSON Schema validation to verify that API responses follow the expected structure and data types.
-
-This provides an additional layer of API contract validation beyond simple status-code assertions.
-
----
-
-## 🐞 Negative Testing & Defect Investigation
-
-Negative testing is included to verify how the API behaves when invalid, incomplete, or unexpected data is submitted.
-
-### 🔎 Examples
-
-* Missing required fields
-* Invalid field values
-* Invalid data types
-* Unsupported values
-* Invalid request payloads
-
-Unexpected behavior can be captured and documented as part of the QA investigation.
-
-### 🔄 QA Validation Approach
+For example, a future update-pet operation could use:
 
 ```text
-📝 Test Scenario
-      ↓
-▶️ Test Execution
-      ↓
-🔍 Expected vs Actual Comparison
-      ↓
-🐞 Issue Identification
-      ↓
-📋 Defect Documentation
-      ↓
-🔄 Regression Test
+features/pet/pet-put-pet.feature
+step-definitions/pet/pet-put-pet.steps.js
+page-objects/data/pet/pet-put-pet-test-data.json
+page-objects/data/pet/pet-put-pet-api-schema.json
 ```
 
----
+These are suggested names for future files, not a claim that the PUT operation is already implemented.
 
-## ▶️ Running the Tests
+### Adding a new operation
 
-### 📦 Install Dependencies
+1. Create the feature under `features/<resource>/` and add scenarios with meaningful Cucumber tags.
+2. Add the matching resource step-definition file under `step-definitions/<resource>/`, reusing existing common steps where possible.
+3. Add the API operation data under `page-objects/data/<resource>/` with the endpoint key, path, HTTP method, and API version expected by the framework.
+4. Add request fixtures under `test-data/<resource>/` and use descriptive keywords in the scenario.
+5. Add the response schema under `page-objects/data/<resource>/` and reference it through the existing schema-resolution mechanism.
+6. Run the new scenario tag, then run lint, formatting checks, and the full test suite.
+
+> **Cucumber matching note:** Cucumber does not pair feature and step-definition files by filename. The configured `--require "step-definitions/**/*.js"` pattern loads the step definitions, and Cucumber matches each Gherkin step to a registered expression. Matching filenames are a project naming convention that makes files easier for people to find and maintain.
+
+Use `Id` consistently in filenames and identifiers (for example, `petId`). On Windows, case-only filename changes may require a two-step `git mv` rename so Git records the change.
+
+## 🧪 Test data management
+
+The framework separates two main data concerns:
+
+1. **API operation data** in `page-objects/data/<resource>/`: identifies the endpoint configuration used by the request builder, such as endpoint key, path, method, and API version.
+2. **Request fixtures** in `test-data/<resource>/`: provides named payload variations such as `valid pet`, `pending pet`, `sold pet`, `missing id pet`, `missing name pet`, `invalid status pet`, and `invalid type pet`.
+
+Response schemas are stored separately using the `*-api-schema.json` naming convention.
+
+For a POST-to-GET integration scenario, the POST response is saved in the Cucumber World. The created pet ID and details are then available to the following GET step, so the GET validation compares the retrieved pet with the pet created in that scenario.
+
+## ▶️ Test execution
+
+Run commands from the `playwright-javascript/` directory.
+
+### Install dependencies
+
+For a clean installation based on the committed lockfile:
 
 ```bash
-npm install
+npm ci
 ```
 
-### ▶️ Run the Test Suite
+Use `npm install` when intentionally adding/updating dependencies or generating the lockfile. Commit `package.json` and `package-lock.json` together when dependency definitions change.
+
+### Run tests
 
 ```bash
+# Run the complete test suite
 npm test
-```
 
-### 🏷️ Run Tests Using a Cucumber Tag
+# Run GET pet by ID scenarios
+node run-tests.js --tags "@GetPetById"
 
-```bash
+# Run POST pet scenarios
 node run-tests.js --tags "@PostPet"
-```
 
-### 🔄 Run Regression Tests
-
-```bash
+# Run scenarios tagged for regression
 node run-tests.js --tags "@Regression"
 ```
 
----
+Tags must exist in the feature files. Use the tag assigned to the scenario or feature you want to execute.
 
-## ⚙️ Environment Configuration
+### Run quality checks
 
-Environment-specific configuration is managed using environment variables.
-
-### 🔐 Example
-
-```text
-API_BASE_URL=
-API_ENDPOINT_REGISTRY_FILE=
-API_TEST_DATA_ROOT=
-API_SCHEMA_ROOT=
+```bash
+npm run lint
+npm run format:check
 ```
 
-Sensitive credentials and environment-specific values should not be committed to the repository.
+To apply automatic fixes, use the scripts if they are defined in `package.json`:
 
-A `.env.example` file can be used to document the required configuration without exposing sensitive information.
-
----
-
-## 📈 Test Reporting
-
-The framework supports test execution reporting to provide visibility into:
-
-* ✅ Passed scenarios
-* ❌ Failed scenarios
-* 📋 Scenario execution details
-* 🔍 Validation failures
-* 🌐 API test results
-
-### 🚧 Future Reporting Improvements
-
-* GitHub Actions execution
-* Automated report publishing
-* CI regression reports
-* Test execution history
-
----
-
-## 🗺️ Roadmap
-
-### ✅ Completed
-
-* [x] 🎭 Playwright APIRequestContext
-* [x] 🟨 JavaScript API automation
-* [x] 🥒 Cucumber BDD
-* [x] 📝 Gherkin feature files
-* [x] 📊 External test data
-* [x] 🔗 Endpoint registry
-* [x] ♻️ Common API steps
-* [x] ✅ Positive testing
-* [x] ❌ Negative testing
-* [x] 🔍 Response validation
-* [x] 📋 JSON Schema validation
-* [x] 📖 OpenAPI / Swagger-based API testing
-
-### 🔄 In Progress
-
-* [ ] 🐾 Expand Pet API coverage
-* [ ] 📈 Improve test reporting
-* [ ] 📊 Add API coverage documentation
-* [ ] 🐞 Add documented defect examples
-* [ ] ⚙️ Add GitHub Actions CI execution
-
-### 🚧 Planned
-
-* [ ] 🔄 Complete CRUD API coverage
-* [ ] ✏️ PUT API automation
-* [ ] 🗑️ DELETE API automation
-* [ ] 🔐 Authentication testing
-* [ ] 📋 Contract testing
-* [ ] ⚡ API performance testing
-* [ ] 🐳 Docker-based execution
-* [ ] 🔄 CI/CD regression pipeline
-
----
-
-## 💼 QA Engineering Skills Demonstrated
-
-### 🌐 API Testing
-
-* REST API testing
-* Functional API testing
-* Positive and negative testing
-* Request/response validation
-* HTTP status-code validation
-* Path parameter testing
-* Query parameter testing
-* JSON Schema validation
-* API contract validation
-
-### 🤖 Automation Engineering
-
-* Playwright APIRequestContext
-* JavaScript
-* Node.js
-* Cucumber BDD
-* Gherkin
-* Data-driven testing
-* Scenario Outlines
-* Reusable common steps
-* Centralized endpoint configuration
-* Externalized test data
-
-### 🧪 QA Engineering
-
-* Test scenario design
-* Negative testing
-* Expected vs actual analysis
-* Defect identification
-* Regression testing
-* Test coverage analysis
-* Test reporting
-
-### 🔧 Engineering Practices
-
-* Git
-* GitHub
-* Branching
-* Pull Requests
-* Environment configuration
-* Reusable automation components
-* Maintainable framework design
-
----
-
-## 🎯 Project Goals
-
-The goal of this portfolio is to demonstrate practical experience in **API test automation and QA engineering**, with a focus on creating reliable, maintainable, and reusable automation.
-
-### 🔄 Testing Workflow
-
-```text
-📖 API Specification
-        ↓
-📝 Test Scenario Design
-        ↓
-📊 Test Data
-        ↓
-🤖 API Automation
-        ↓
-🔍 Response Validation
-        ↓
-🐞 Defect Identification
-        ↓
-🔄 Regression Testing
-        ↓
-📈 Reporting
-        ↓
-⚙️ CI/CD
+```bash
+npm run format:write
+npm run lint:fix
 ```
 
+Otherwise, run the tools directly:
+
+```bash
+npx prettier --write .
+npx eslint . --ext .js --fix
+```
+
+### Recommended pre-push sequence
+
+```bash
+npm ci
+npm run lint
+npm run format:check
+npm test
+```
+
+## 🔍 Validation strategy
+
+| Validation layer | What is checked |
+|---|---|
+| HTTP response | Expected status code, content type, and relevant headers |
+| Response payload | Expected values, required fields, data types, nested objects, and arrays |
+| JSON Schema | AJV validates response structure and data types against the selected schema |
+| Integration flow | Values saved from POST, such as the created pet ID, are reused and checked by GET |
+| Negative behaviour | API responses for missing, invalid, non-existing, negative, and non-numeric input values |
+
+The test data includes negative POST examples such as missing identifiers or names, invalid status values, and invalid data types. GET-by-ID tests also cover invalid and non-existing identifiers.
+
+## ⚙️ GitHub Actions checks
+
+GitHub Actions runs checks on pull requests so changes are reviewed by automated quality gates before merge. The latest shared pull-request result showed **5 of 5 checks passing**.
+
+| Pull-request check | What it covers | Value to QA engineering |
+|---|---|---|
+| **Code Quality Checks – ESLint and Prettier** | Linting and formatting validation | Keeps automation code consistent and easier to maintain |
+| **CodeQL Security Analysis – Analyze JavaScript** | Static analysis of JavaScript for potential security issues | Adds security analysis to the code review workflow |
+| **Code scanning results – CodeQL** | Publishes the analysis results and alerts; the shared run reported no new alerts in changed code | Makes security findings visible during review |
+| **Dependency Review** | Reviews dependency changes in the pull request | Helps identify dependencies with known vulnerabilities |
+| **Playwright API Automation – Run API Automation Tests** | Executes the API automation suite | Helps detect functional regressions before merge |
+
+### Recorded outcome
+
+- **5/5 GitHub Actions checks passed** in the shared pull-request result.
+- Code scanning reported no new alerts in the changed code.
+- GitHub reported no conflicts with the base branch.
+- A separate full local test execution reported **18 scenarios and 176 steps passed**. This local result is separate from the five CI checks.
+
+## 📈 Reports
+
+The framework generates a Cucumber HTML report under `reports/` after execution. It provides scenario outcomes and execution details. Further improvements may include retaining or publishing reports from CI runs and making regression history easier to review.
+
+## ✅ Implementation checklist
+
+### Completed
+
+- [x] Playwright `APIRequestContext` setup
+- [x] JavaScript and Node.js project setup
+- [x] Cucumber-JS and Gherkin BDD integration
+- [x] Feature files organised by API resource
+- [x] Resource-specific step definitions and reusable common steps
+- [x] Centralised API endpoint configuration
+- [x] External JSON request/test data
+- [x] Environment configuration support
+- [x] Positive and negative API testing
+- [x] POST Pet automation
+- [x] GET Pet by ID automation
+- [x] GET Pet by status automation
+- [x] POST-to-GET integration using the created pet ID and response details
+- [x] HTTP status, response-header, and payload validation
+- [x] AJV JSON Schema validation
+- [x] ESLint and Prettier checks
+- [x] GitHub Actions pull-request checks for code quality, CodeQL, dependency review, and API automation
+- [x] Cucumber HTML report generation
+
+### Planned
+
+- [ ] Complete Pet CRUD coverage with `PUT` and `DELETE`
+- [ ] Add more path-parameter and query-parameter edge cases
+- [ ] Maintain an endpoint-to-test coverage matrix
+- [ ] Add authentication and authorisation scenarios where supported by the API
+- [ ] Improve CI report retention and publishing
+- [ ] Add execution against additional configured environments
+- [ ] Document defect investigations with expected-versus-actual evidence
+- [ ] Extend contract testing beyond the current response-schema checks
+- [ ] Evaluate API performance testing as a separate test layer
+- [ ] Evaluate Docker-based execution for consistent local and CI environments
+
+## 💡 QA automation value
+
+This project demonstrates practical experience in:
+
+- **API testing:** REST testing, positive and negative scenarios, request/response checks, path and query parameters, schema validation, and multi-request integration flows.
+- **Automation engineering:** Playwright APIRequestContext, JavaScript, Cucumber BDD, Scenario Outlines, external test data, reusable steps, and centralised endpoint configuration.
+- **Quality engineering:** Regression testing, expected-versus-actual analysis, defect investigation, test reporting, and CI quality gates.
+- **Engineering practices:** Git workflows, pull requests, GitHub Actions, linting, formatting, CodeQL analysis, and dependency review.
+
 ---
 
-## 👩‍💻 About
-
-This repository is part of my **QA Automation Portfolio** and is continuously being enhanced with additional API coverage, automation improvements, testing techniques, and CI/CD practices.
-
-### 🎯 Focus Areas
-
-`QA Automation` · `API Testing` · `Playwright` · `JavaScript` · `Cucumber BDD` · `REST API` · `OpenAPI` · `JSON Schema` · `Test Automation`
+**Repository:** [Padmaqaauto / API-automation-portfolio](https://github.com/Padmaqaauto/API-automation-portfolio)  
+**API documentation:** [Swagger Petstore](https://petstore.swagger.io/)
