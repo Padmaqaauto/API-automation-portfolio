@@ -1,0 +1,82 @@
+{
+  "petToUpdate": {
+    "id": 202611170001,
+    "category": {
+      "id": 1,
+      "name": "Dogs"
+    },
+    "name": "PutPetAutomationSource",
+    "photoUrls": ["https://example.com/put-pet-source.jpg"],
+    "tags": [
+      {
+        "id": 1,
+        "name": "automation"
+      }
+    ],
+    "status": "available"
+  },
+  "updatedPet": {
+    "id": 202611170761,
+    "category": {
+      "id": 19,
+      "name": "Dogs"
+    },
+    "name": "UpdatedAvailablePet",
+    "photoUrls": ["https://example.com/put-pet-updated.jpg"],
+    "tags": [
+      {
+        "id": 1,
+        "name": "automation"
+      }
+    ],
+    "status": "pending"
+  },
+  "updateIdOnly": {
+    "id": 202611170762,
+    "category": {
+      "id": 1,
+      "name": "Dogs"
+    },
+    "name": "PutPetAutomationSource",
+    "photoUrls": ["https://example.com/put-pet-source.jpg"],
+    "tags": [
+      {
+        "id": 1,
+        "name": "automation"
+      }
+    ],
+    "status": "available"
+  },
+  "updateNameOnly": {
+    "id": 202611170001,
+    "category": {
+      "id": 1,
+      "name": "Dogs"
+    },
+    "name": "UpdatedPetNameOnly",
+    "photoUrls": ["https://example.com/put-pet-source.jpg"],
+    "tags": [
+      {
+        "id": 1,
+        "name": "automation"
+      }
+    ],
+    "status": "available"
+  },
+  "updateStatusOnly": {
+    "id": 202611170001,
+    "category": {
+      "id": 1,
+      "name": "Dogs"
+    },
+    "name": "PutPetAutomationSource",
+    "photoUrls": ["https://example.com/put-pet-source.jpg"],
+    "tags": [
+      {
+        "id": 1,
+        "name": "automation"
+      }
+    ],
+    "status": "sold"
+  }
+}
