@@ -13,7 +13,6 @@ export class ApiClient {
         process.env.BASE_URL ||
         "https://petstore.swagger.io/v2",
       extraHTTPHeaders: {
-        "Content-Type": "application/json",
         Accept: "application/json",
       },
       ignoreHTTPSErrors: true,
