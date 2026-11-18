@@ -1,0 +1,20 @@
+{
+  "petUploadImage": {
+    "endpointKey": "petUploadImage",
+    "path": "/pet/{petId}/uploadImage",
+    "invalidUrl": "/pet/{petId}/invalidUploadImage",
+    "method": "POST",
+    "version": "v2",
+    "headers": {
+      "Accept": "static:application/json"
+    },
+    "requestBody": {
+      "additionalMetadata": "{{additionalMetadata}}",
+      "file": {
+        "path": "{{filePath}}",
+        "name": "{{fileName}}",
+        "mimeType": "{{mimeType}}"
+      }
+    }
+  }
+}

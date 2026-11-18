@@ -2,7 +2,7 @@ export class ApiRequestUtils {
   constructor(responseUtils) {
     this.responseUtils = responseUtils;
   }
-  async send(context, { method, url, headers = {}, data }) {
+  async send(context, { method, url, headers = {}, data, multipart }) {
     if (!context) {
       throw new Error("Playwright APIRequestContext is not initialized.");
     }
@@ -10,7 +10,9 @@ export class ApiRequestUtils {
       method,
       headers,
     };
-    if (data !== undefined && data !== null) {
+    if (multipart !== undefined && multipart !== null) {
+      options.multipart = multipart;
+    } else if (data !== undefined && data !== null) {
       options.data = data;
     }
     const response = await context.fetch(url, options);

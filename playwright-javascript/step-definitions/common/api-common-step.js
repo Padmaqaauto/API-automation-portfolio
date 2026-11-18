@@ -15,6 +15,9 @@ import {
 } from "../../support/utils/data-utils.js";
 
 import { ApiRequestBuilderUtils } from "../../support/utils/api-request-builder-utils.js";
+import { PostPetIdUploadImagePage } from "../../page-objects/pages/pet/pet-post-petId-upload-image.page.js";
+
+const uploadImagePage = new PostPetIdUploadImagePage();
 
 const endpointRegistryFile = process.env.API_ENDPOINT_REGISTRY_FILE;
 
@@ -1018,6 +1021,46 @@ Given(
   },
 );
 
+Given(
+  "the user prepares a pet image upload with API data {string} and scenario data {string} for {string}",
+  async function (apiDataFile, scenarioDataFile, scenarioKeyword) {
+    const apiDataPath = resolveTestDataFile(apiDataFile);
+    const operation = getKeywordData(
+      readJsonFile(apiDataPath),
+      "petUploadImage",
+    );
+    const scenarioDataPath = path.resolve(
+      process.cwd(),
+      scenarioDataRoot,
+      "pet",
+      scenarioDataFile,
+    );
+    const scenario = getKeywordData(
+      readJsonFile(scenarioDataPath),
+      scenarioKeyword,
+    );
+
+    if (!this.apiRequestBuilder) {
+      const registry = await loadEndpointRegistry();
+      this.apiRequestBuilder = new ApiRequestBuilderUtils(
+        registry.endpoints ?? registry,
+      );
+    }
+
+    const endpoint = this.apiRequestBuilder.getEndpoint(operation.endpointKey);
+    const { error } = uploadImagePage.prepareUpload(this, {
+      operation,
+      scenario,
+      apiDataPath,
+      scenarioDataRoot: path.resolve(process.cwd(), scenarioDataRoot),
+      endpoint,
+      builder: this.apiRequestBuilder,
+    });
+
+    this.requestPreparationError = error;
+  },
+);
+
 /* =========================================================
    POST / PUT / PATCH REQUEST WITH BODY
 
@@ -1365,7 +1408,11 @@ When("the user sends a {word} request to API", async function (method) {
   // ----------------------------------------------------
 
   if (["POST", "PUT", "PATCH"].includes(requestMethod)) {
-    request.data = this.requestPayload;
+    if (this.requestMultipart !== undefined && this.requestMultipart !== null) {
+      request.multipart = this.requestMultipart;
+    } else {
+      request.data = this.requestPayload;
+    }
   }
 
   console.log(`Sending ${requestMethod} request to: ${this.requestUrl}`);

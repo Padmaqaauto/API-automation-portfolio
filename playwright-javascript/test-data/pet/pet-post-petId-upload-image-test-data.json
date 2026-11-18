@@ -1,0 +1,37 @@
+{
+  "availablePetImageUpload": {
+    "petId": "createdPetId",
+    "additionalMetadata": "Available pet image upload",
+    "filePath": "fixtures/pet-upload-image.png",
+    "fileName": "pet-upload-image.png",
+    "mimeType": "image/png"
+  },
+  "pendingPetImageUpload": {
+    "petId": "createdPetId",
+    "additionalMetadata": "Pending pet image upload",
+    "filePath": "fixtures/pet-upload-image.png",
+    "fileName": "pet-upload-image.png",
+    "mimeType": "image/png"
+  },
+  "soldPetImageUpload": {
+    "petId": "createdPetId",
+    "additionalMetadata": "Sold pet image upload",
+    "filePath": "fixtures/pet-upload-image.png",
+    "fileName": "pet-upload-image.png",
+    "mimeType": "image/png"
+  },
+  "invalidUrlUpload": {
+    "petId": "createdPetId",
+    "useInvalidUrl": true,
+    "additionalMetadata": "Invalid URL upload",
+    "filePath": "fixtures/pet-upload-image.png",
+    "fileName": "pet-upload-image.png",
+    "mimeType": "image/png"
+  },
+  "missingPetId": {
+    "petId": null
+  },
+  "nonIntegerPetId": {
+    "petId": "not-an-integer"
+  }
+}
