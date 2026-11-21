@@ -39,6 +39,11 @@ Then("save the updated pet details for the following GET", function () {
 
   this.updatedPet = structuredClone(responseBody);
   this.createdPetId = responseBody.id;
+  this.variables = {
+    ...(this.variables ?? {}),
+    createdPetId: responseBody.id,
+    petId: responseBody.id,
+  };
 });
 
 Then("verify the retrieved pet matches the updated pet", function () {

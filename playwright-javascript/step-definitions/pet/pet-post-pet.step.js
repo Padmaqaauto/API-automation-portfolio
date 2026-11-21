@@ -32,6 +32,11 @@ Then("save the created pet details for the following GET", function () {
 
   this.createdPet = structuredClone(responseBody);
   this.createdPetId = responseBody.id;
+  this.variables = {
+    ...(this.variables ?? {}),
+    createdPetId: responseBody.id,
+    petId: responseBody.id,
+  };
 
   console.log("[Created Pet Saved]", {
     id: this.createdPetId,
