@@ -922,7 +922,7 @@ Given(
   "the user creates a {word} request URL and headers with api data {string}",
 
   async function (method, apiData) {
-    const testDataFile = path.resolve(testDataRoot, "pet", apiData);
+    const testDataFile = resolveTestDataFile(apiData);
 
     const allTestData = await loadJson(testDataFile);
 

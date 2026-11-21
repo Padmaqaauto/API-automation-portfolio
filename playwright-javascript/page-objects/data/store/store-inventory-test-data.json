@@ -1,0 +1,13 @@
+{
+  "storeInventory": {
+    "url": "/store/inventory",
+    "method": "GET",
+    "version": "v2",
+    "headers": {
+      "Accept": "static:application/json"
+    },
+    "pathParams": {},
+    "queryParams": {},
+    "requestBody": null
+  }
+}
