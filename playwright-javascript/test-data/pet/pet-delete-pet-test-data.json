@@ -1,0 +1,18 @@
+{
+  "petToDelete": {
+    "id": "{{petId}}",
+    "category": {
+      "id": 1,
+      "name": "API automation"
+    },
+    "name": "delete-test-pet-{{petId}}",
+    "photoUrls": ["https://example.com/delete-test-pet.jpg"],
+    "tags": [
+      {
+        "id": 1,
+        "name": "delete-test"
+      }
+    ],
+    "status": "{{petStatus}}"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "petDelete": {
+    "url": "/pet/{petId}",
+    "method": "DELETE",
+    "version": "v2",
+    "headers": {
+      "Accept": "static:application/json"
+    },
+    "pathParams": {
+      "petId": "{{petId}}"
+    },
+    "queryParams": {},
+    "requestBody": null
+  }
+}

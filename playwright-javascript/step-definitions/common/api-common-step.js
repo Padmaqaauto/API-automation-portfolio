@@ -887,6 +887,38 @@ function findScenarioKeyword(keyword, scenarioFiles, variables, options) {
    ========================================================= */
 
 Given(
+  "the user sets the {string} path parameter to a unique ID",
+  function (parameterName) {
+    const name = String(parameterName).trim();
+
+    if (!name) {
+      throw new Error("Path parameter name cannot be empty.");
+    }
+
+    if (!this.endpoint || !this.apiRequestBuilder) {
+      throw new Error(
+        "Prepare an API request before setting a generated path parameter.",
+      );
+    }
+
+    const variables = this.variables ?? {};
+    const value = resolveDynamicData(`{{${name}}}`, variables);
+
+    this.variables = variables;
+    this.pathParams = {
+      ...(this.pathParams ?? {}),
+      [name]: value,
+    };
+    this.requestUrl = buildRequestUrl(
+      this,
+      this.endpoint,
+      this.pathParams,
+      this.queryParams ?? {},
+    );
+  },
+);
+
+Given(
   "the user creates a {word} request URL and headers with api data {string}",
 
   async function (method, apiData) {
