@@ -1,0 +1,34 @@
+{
+  "crudPetToCreate": {
+    "id": "{{petId}}",
+    "category": {
+      "id": 1,
+      "name": "CRUD Integration"
+    },
+    "name": "crud-pet-{{petId}}",
+    "photoUrls": ["https://example.com/crud-pet.jpg"],
+    "tags": [
+      {
+        "id": 1,
+        "name": "crud-integration"
+      }
+    ],
+    "status": "{{petStatus}}"
+  },
+  "crudPetToUpdate": {
+    "id": "{{createdPetId}}",
+    "category": {
+      "id": 1,
+      "name": "CRUD Integration"
+    },
+    "name": "crud-updated-pet-{{petId}}",
+    "photoUrls": ["https://example.com/crud-pet.jpg"],
+    "tags": [
+      {
+        "id": 1,
+        "name": "crud-integration"
+      }
+    ],
+    "status": "{{updatedPetStatus}}"
+  }
+}

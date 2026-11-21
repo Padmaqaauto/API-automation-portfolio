@@ -1,4 +1,38 @@
 import { Before, After, AfterStep } from "@cucumber/cucumber";
+
+async function cleanupPetCrudIntegration(world) {
+  const petId = world.petCrudCleanupId;
+
+  if (petId === undefined || petId === null) {
+    return;
+  }
+
+  if (
+    !world.apiRequestBuilder ||
+    !world.apiRequestUtils ||
+    !world.requestContext
+  ) {
+    throw new Error(
+      "Pet CRUD cleanup cannot run without an initialized API request.",
+    );
+  }
+
+  const endpoint = world.apiRequestBuilder.getEndpoint("petByIdDelete");
+  const url = world.apiRequestBuilder.buildUrl(endpoint, { petId });
+  const result = await world.apiRequestUtils.delete(world.requestContext, {
+    url,
+    headers: {
+      Accept: "application/json",
+    },
+  });
+
+  if (result.status !== 200 && result.status !== 404) {
+    throw new Error(
+      `Pet CRUD cleanup failed for pet ID "${petId}" with HTTP ${result.status}.`,
+    );
+  }
+}
+
 Before(async function () {
   await this.apiClient.init();
   // Keep the Playwright APIRequestContext on the Cucumber World.
@@ -10,6 +44,10 @@ AfterStep(async function ({ result }) {
   }
 });
 After(async function () {
-  await this.apiClient?.close();
-  this.requestContext = null;
+  try {
+    await cleanupPetCrudIntegration(this);
+  } finally {
+    await this.apiClient?.close();
+    this.requestContext = null;
+  }
 });
