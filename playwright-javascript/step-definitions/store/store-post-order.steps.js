@@ -65,4 +65,6 @@ Then("the response should match the submitted order", function () {
       "Order response shipDate must match the submitted date-time.",
     );
   }
+
+  this.createdOrder = structuredClone(response);
 });
