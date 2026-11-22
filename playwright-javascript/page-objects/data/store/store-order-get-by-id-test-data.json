@@ -1,0 +1,15 @@
+{
+  "storeOrderById": {
+    "url": "/store/order/{orderId}",
+    "method": "GET",
+    "version": "v2",
+    "headers": {
+      "Accept": "static:application/json"
+    },
+    "pathParams": {
+      "orderId": "{{orderId}}"
+    },
+    "queryParams": {},
+    "requestBody": null
+  }
+}
