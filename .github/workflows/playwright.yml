@@ -1,3 +1,4 @@
+
 name: Playwright API Automation
 
 on:
@@ -13,6 +14,10 @@ on:
 
   workflow_dispatch:
 
+  schedule:
+    - cron: '30 8 * * 1,4'
+      timezone: 'Europe/Stockholm'
+
 permissions:
   contents: read
 
@@ -20,6 +25,7 @@ jobs:
   playwright:
     name: Run API Automation Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     defaults:
       run:
@@ -50,3 +56,28 @@ jobs:
 
       - name: Run API automation tests
         run: npm test
+
+      - name: Upload Cucumber HTML report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: cucumber-api-report
+          path: playwright-javascript/reports/
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Publish execution summary
+        if: always()
+        env:
+          RESULT: ${{ job.status }}
+        run: |
+          {
+            echo "## Playwright API Automation"
+            echo ""
+            echo "- Execution status: **${RESULT}**"
+            echo "- Trigger: ${GITHUB_EVENT_NAME}"
+            echo "- Branch: ${GITHUB_REF_NAME}"
+            echo "- Commit: ${GITHUB_SHA}"
+            echo ""
+            echo "Download the Cucumber HTML report from the workflow artifacts."
+          } >> "$GITHUB_STEP_SUMMARY"
