@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Swagger Petstore Order Response",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "petId": {
+      "type": "integer"
+    },
+    "quantity": {
+      "type": "integer"
+    },
+    "shipDate": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"
+    },
+    "status": {
+      "type": "string",
+      "enum": ["placed", "approved", "delivered"]
+    },
+    "complete": {
+      "type": "boolean"
+    }
+  },
+  "required": ["id", "petId", "quantity", "status", "complete"],
+  "additionalProperties": false
+}

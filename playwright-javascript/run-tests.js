@@ -41,6 +41,10 @@ exec(
     } catch (reportError) {
       console.error("Failed to generate/open Cucumber report:", reportError);
     }
+    if (!process.env.CI) {
+      await import("./helpers/open-report.js");
+      console.log("Opened Cucumber report in your browser.");
+    }
 
     // Preserve Cucumber's actual exit code.
     process.exitCode = cucumberExitCode;
