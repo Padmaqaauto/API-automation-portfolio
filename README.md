@@ -48,8 +48,12 @@ The goal is to build a reusable API automation framework in which **test scenari
 | `POST` | `/pet` | Create a pet; valid and invalid request data; request and response validation |
 | `GET` | `/pet/{petId}` | Retrieve by ID; valid, invalid, missing, negative, and non-numeric IDs; POST-to-GET integration |
 | `GET` | `/pet/findByStatus` | Query-parameter testing for pet status |
-
-`PUT` and `DELETE` operations are planned; they are not part of the completed coverage listed above.
+| `POST` | `/pet/{petId}` | Update pet data using form parameters |
+| `POST` | `/pet/{petId}/uploadImage` | Upload a pet image with positive and negative scenarios |
+| `PUT` | `/pet` | Update an existing pet; valid and invalid request data |
+| `DELETE` | `/pet/{petId}` | Delete a pet and validate missing, invalid, and valid IDs |
+| `GET` | `/store/inventory` | Retrieve the store inventory |
+| Pet CRUD integration | POST, GET, PUT, and DELETE | Create, retrieve, update, and delete one pet in an end-to-end flow |
 
 ## 🧰 Technology stack
 
@@ -295,7 +299,7 @@ The test data includes negative POST examples such as missing identifiers or nam
 
 ## ⚙️ GitHub Actions checks
 
-GitHub Actions runs checks on pull requests so changes are reviewed by automated quality gates before merge. The latest shared pull-request result showed **5 of 5 checks passing**.
+GitHub Actions runs checks on pushes, pull requests, schedules, and manual dispatches so changes are reviewed by automated quality gates before merge.
 
 | Pull-request check | What it covers | Value to QA engineering |
 |---|---|---|
@@ -305,16 +309,40 @@ GitHub Actions runs checks on pull requests so changes are reviewed by automated
 | **Dependency Review** | Reviews dependency changes in the pull request | Helps identify dependencies with known vulnerabilities |
 | **Playwright API Automation – Run API Automation Tests** | Executes the API automation suite | Helps detect functional regressions before merge |
 
-### Recorded outcome
+The API automation workflow:
 
-- **5/5 GitHub Actions checks passed** in the shared pull-request result.
-- Code scanning reported no new alerts in the changed code.
-- GitHub reported no conflicts with the base branch.
-- A separate full local test execution reported **18 scenarios and 176 steps passed**. This local result is separate from the five CI checks.
+- runs in a Node.js 22 Ubuntu environment;
+- installs dependencies from `package-lock.json` with `npm ci`;
+- executes the Cucumber suite and preserves its exit status;
+- generates an HTML report and a Markdown execution summary;
+- uploads the complete `reports/` folder as a workflow artifact for 30 days;
+- fails the workflow when an API test fails.
+
+The workflow runs from `.github/workflows/playwright.yml` and can also be started manually from the **Actions** tab.
 
 ## 📈 Reports
 
-The framework generates a Cucumber HTML report under `reports/` after execution. It provides scenario outcomes and execution details. Further improvements may include retaining or publishing reports from CI runs and making regression history easier to review.
+The framework generates both machine-readable and human-readable reports under `reports/` after execution:
+
+- `cucumber-report.html` provides scenario and step execution details.
+- `cucumber-report.json` contains the raw Cucumber results.
+- `report-summary.md` lists passed, failed, and skipped scenario and step counts.
+
+The HTML report is generated without opening a browser, so it is suitable for local and CI execution.
+
+To generate or inspect a report:
+
+```bash
+cd playwright-javascript
+npm test
+npm run report
+```
+
+Open `playwright-javascript/reports/cucumber-report.html` in a browser.
+
+### Automated CI reports
+
+On GitHub Actions, `reports/` is published as a workflow artifact named `cucumber-api-report-<run-number>`. The report is available even when tests fail. The workflow summary also includes scenario and step counts and the report download location.
 
 ## ✅ Implementation checklist
 
@@ -332,16 +360,22 @@ The framework generates a Cucumber HTML report under `reports/` after execution.
 - [x] POST Pet automation
 - [x] GET Pet by ID automation
 - [x] GET Pet by status automation
+- [x] POST Pet by ID automation
+- [x] Pet image upload automation
+- [x] PUT Pet automation
+- [x] DELETE Pet automation
+- [x] Store inventory automation
+- [x] End-to-end Pet CRUD integration
 - [x] POST-to-GET integration using the created pet ID and response details
 - [x] HTTP status, response-header, and payload validation
 - [x] AJV JSON Schema validation
 - [x] ESLint and Prettier checks
 - [x] GitHub Actions pull-request checks for code quality, CodeQL, dependency review, and API automation
 - [x] Cucumber HTML report generation
+- [x] CI report artifacts and execution summaries
 
 ### Planned
 
-- [ ] Complete Pet CRUD coverage with `PUT` and `DELETE`
 - [ ] Add more path-parameter and query-parameter edge cases
 - [ ] Maintain an endpoint-to-test coverage matrix
 - [ ] Add authentication and authorisation scenarios where supported by the API
