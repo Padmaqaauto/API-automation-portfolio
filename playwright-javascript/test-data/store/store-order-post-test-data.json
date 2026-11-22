@@ -1,0 +1,66 @@
+{
+  "placed_order": {
+    "id": "{{orderId}}",
+    "petId": 416373,
+    "quantity": 1,
+    "shipDate": "2026-11-22T16:30:00.000Z",
+    "status": "placed",
+    "complete": false
+  },
+  "approved_order": {
+    "id": "{{orderId}}",
+    "petId": 416373,
+    "quantity": 1,
+    "shipDate": "2026-11-22T16:30:00.000Z",
+    "status": "approved",
+    "complete": true
+  },
+  "delivered_order": {
+    "id": "{{orderId}}",
+    "petId": 416373,
+    "quantity": 1,
+    "shipDate": "2026-11-22T16:30:00.000Z",
+    "status": "delivered",
+    "complete": true
+  },
+  "zero_quantity_order": {
+    "id": "{{orderId}}",
+    "petId": 416373,
+    "quantity": 0,
+    "shipDate": "2026-11-22T16:30:00.000Z",
+    "status": "placed",
+    "complete": false
+  },
+  "maximum_quantity_order": {
+    "id": "{{orderId}}",
+    "petId": 416373,
+    "quantity": 2147483647,
+    "shipDate": "2026-11-22T16:30:00.000Z",
+    "status": "placed",
+    "complete": false
+  },
+  "invalid_status_order": {
+    "id": "{{orderId}}",
+    "petId": 416373,
+    "quantity": 1,
+    "shipDate": "2026-11-22T16:30:00.000Z",
+    "status": "invalid",
+    "complete": false
+  },
+  "non_integer_quantity_order": {
+    "id": "{{orderId}}",
+    "petId": 416373,
+    "quantity": "not-an-integer",
+    "shipDate": "2026-11-22T16:30:00.000Z",
+    "status": "placed",
+    "complete": false
+  },
+  "quantity_above_maximum_order": {
+    "id": "{{orderId}}",
+    "petId": 416373,
+    "quantity": 2147483648,
+    "shipDate": "2026-11-22T16:30:00.000Z",
+    "status": "placed",
+    "complete": false
+  }
+}

@@ -30,6 +30,23 @@ Then(
 );
 
 Then(
+  "the retrieved order should match the order created in this scenario",
+  function () {
+    assert.ok(
+      this.createdOrder !== null &&
+        typeof this.createdOrder === "object" &&
+        !Array.isArray(this.createdOrder),
+      "No created order is available for response comparison.",
+    );
+    assert.deepEqual(
+      this.responseBody,
+      this.createdOrder,
+      "GET order response should match the order created earlier in this scenario.",
+    );
+  },
+);
+
+Then(
   "verify the order response has pet ID {int}, quantity {int}, status {string}, and complete {word}",
   async function (petId, quantity, status, complete) {
     const body = this.responseBody;

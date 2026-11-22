@@ -4,22 +4,38 @@ Feature: Retrieve Store Order by ID
   I want to retrieve a store order by its ID
   So that I can inspect the order details
 
-  @API @Store @GetStoreOrderById @Regression @Positive
-  Scenario Outline: Retrieve an existing order and validate its data
-    Given the user creates a GET request URL and headers with api data "<apiData>"
+  @API @Store @GetStoreOrderById @PostStoreOrder @Regression @Positive
+  Scenario Outline: Retrieve an order created in this scenario
+    Given an order ID is generated for this request
+    And the user creates a POST request URL and headers with api data "<createRequest>" and request body
+      | field    | value         |
+      | id       | <scenarioKey> |
+      | petId    | <scenarioKey> |
+      | quantity | <scenarioKey> |
+      | shipDate | <scenarioKey> |
+      | status   | <scenarioKey> |
+      | complete | <scenarioKey> |
+    And the submitted order is scheduled for cleanup
+    When the user sends a POST request to API
+    Then verify the response status code should be "<createStatus>"
+    And verify the content type in response header should be "<contentType>"
+    And verify the response schema should be matching "<responseSchema>"
+    And the response should match the submitted order
+    And verify the optional order ship date is a valid date-time when present
+    And the user creates a GET request URL and headers with api data "<lookupRequest>"
     When the user sends a GET request to API
-    Then verify the response status code should be "<expectedStatus>"
+    Then verify the response status code should be "<lookupStatus>"
     And verify the content type in response header should be "<contentType>"
     And verify the response schema should be matching "<responseSchema>"
     And verify the response order ID should match the requested order ID
-    And verify the order response has pet ID <petId>, quantity <quantity>, status "<status>", and complete <complete>
+    And the retrieved order should match the order created in this scenario
     And verify the optional order ship date is a valid date-time when present
 
     Examples:
-      | apiData        | orderId | expectedStatus | contentType      | responseSchema              | petId  | quantity  | status | complete |
-      | storeOrderById | 3       | 200            | application/json | store-order-api-schema.json | 416373 | 1         | placed | false    |
-      | storeOrderById | 4       | 200            | application/json | store-order-api-schema.json | 470    | 185818946 | placed | true     |
-      | storeOrderById | 8       | 200            | application/json | store-order-api-schema.json | 127369 | 1         | placed | false    |
+      | createRequest  | lookupRequest | scenarioKey      | createStatus | lookupStatus | contentType      | responseSchema              |
+      | storeOrderPost | storeOrderById | placed_order     | 200          | 200          | application/json | store-order-api-schema.json |
+      | storeOrderPost | storeOrderById | approved_order   | 200          | 200          | application/json | store-order-api-schema.json |
+      | storeOrderPost | storeOrderById | delivered_order  | 200          | 200          | application/json | store-order-api-schema.json |
 
   @API @Store @GetStoreOrderById @Regression @Negative
   Scenario Outline: Retrieve a non-existing order

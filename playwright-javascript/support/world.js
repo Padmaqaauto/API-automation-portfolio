@@ -25,6 +25,7 @@ class CustomWorld extends World {
     this.apiData = null;
     this.testData = null;
     this.scenarioData = null;
+    this.storeOrderCleanupId = null;
     this.variables = {};
     this.pickle = null;
   }
