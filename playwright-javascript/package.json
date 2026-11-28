@@ -26,7 +26,7 @@
     "@cucumber/html-formatter": "^24.4.0",
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.65.1",
-    "@types/node": "^26.6.6",
+    "@types/node": "^26.6.7",
     "cucumber-html-reporter": "^5.0.2",
     "eslint": "^10.15.0",
     "globals": "^17.14.0",
