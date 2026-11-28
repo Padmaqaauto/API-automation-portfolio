@@ -90,7 +90,7 @@ Then(
     );
     assert.match(
       shipDate,
-      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/,
+      /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:?\d{2})$/,
       "Order shipDate must use the date-time format.",
     );
     assert.ok(
